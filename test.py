@@ -68,3 +68,8 @@ plt.show()
 # Login    : 10005074994
 # Password : C_TiYvE2
 # Investor : S_8yXqJo
+
+# mongodb
+# nitid1987
+# QubZXqsQ054u0YKK
+# mongodb+srv://nitid1987:QubZXqsQ054u0YKK@cluster0.yd79z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
