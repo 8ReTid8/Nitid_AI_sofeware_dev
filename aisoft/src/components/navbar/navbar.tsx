@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Nav() {
     return (
         <div className="navbar bg-neutral text-neutral-content">
@@ -36,12 +38,9 @@ export default function Nav() {
                     </div>
                 </div>
                 <div className="dropdown dropdown-end">
-                    <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                        <div className="w-10 rounded-full">
-                            <img
-                                alt="Tailwind CSS Navbar component"
-                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                        </div>
+                    {/* <Link href="/auth/login" className="btn btn-primary btn-outline">sign in</Link> */}
+                    <div tabIndex={0} role="button" className="btn btn-ghost">
+                        Sign in
                     </div>
                     <ul
                         tabIndex={0}
@@ -49,7 +48,6 @@ export default function Nav() {
                         <li>
                             <a className="justify-between">
                                 Profile
-                                <span className="badge">New</span>
                             </a>
                         </li>
                         <li><a>Settings</a></li>
