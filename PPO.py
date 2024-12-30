@@ -49,7 +49,7 @@ class ForexTradingEnv(gym.Env):
         return next_state, reward, self.done, {}
 
     def open_position(self, action_type, size=1.0):
-        price = self.data.iloc[self.current_step]["Close"]
+        price = self.data.iloc[self.current_step]["CLOSE"]
         if action_type == "buy":
             self.balance -= size * price  # Deduct cost of the position
             self.position_size += size
@@ -58,7 +58,7 @@ class ForexTradingEnv(gym.Env):
             self.position_size -= size
 
     def close_position(self):
-        price = self.data.iloc[self.current_step]["Close"]
+        price = self.data.iloc[self.current_step]["CLOSE"]
         profit = self.position_size * price  # Calculate profit/loss
         self.balance += profit
         self.position_size = 0  # Reset position
@@ -71,13 +71,19 @@ class ForexTradingEnv(gym.Env):
 # Example usage
 if __name__ == "__main__":
     # Load dummy forex data
-    data = pd.DataFrame({
-        "Open": np.random.rand(1000) + 1.1,
-        "High": np.random.rand(1000) + 1.2,
-        "Low": np.random.rand(1000) + 1.0,
-        "Close": np.random.rand(1000) + 1.15,
-        "Volume": np.random.randint(100, 200, 1000),
-    })
+
+    # data = pd.DataFrame({
+    #     "Open": np.random.rand(1000) + 1.1,
+    #     "High": np.random.rand(1000) + 1.2,
+    #     "Low": np.random.rand(1000) + 1.0,
+    #     "Close": np.random.rand(1000) + 1.15,
+    #     "Volume": np.random.randint(100, 200, 1000),
+    # })
+    
+    data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
+    data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
+    data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
+    print(data)
 
     # Wrap the environment
     env = DummyVecEnv([lambda: ForexTradingEnv(data)])
