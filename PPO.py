@@ -24,7 +24,8 @@ class ForexTradingEnv(gym.Env):
 
     def reset(self):
         self.balance = self.initial_balance
-        self.position_size = 0
+        # self.position_size = 0
+        self.trades = []
         self.current_step = 0
         self.done = False
         self.profit = 0
@@ -32,13 +33,23 @@ class ForexTradingEnv(gym.Env):
 
     def step(self, action):
         reward = 0
-
-        if action == 1:  # Buy
+        if action == 0:
+            reward += 0
+        elif action == 1:  # Buy
             self.open_position("buy")
         elif action == 2:  # Sell
             self.open_position("sell")
         elif action == 3:  # Close Position
-            reward = self.close_position()
+            if self.trades:  # Ensure there are trades to close
+            # Find the most profitable trade
+                current_price = self.data.iloc[self.current_step]["CLOSE"]
+                unrealized_profits = [
+                    trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
+                    else trade["size"] * (trade["entry_price"] - current_price)
+                    for trade in self.trades
+                ]
+                most_profitable_index = np.argmax(unrealized_profits)
+                reward = self.close_position(most_profitable_index)
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -48,25 +59,42 @@ class ForexTradingEnv(gym.Env):
         next_state = self.data.iloc[self.current_step].values
         return next_state, reward, self.done, {}
 
-    def open_position(self, action_type, size=1.0):
+    def open_position(self, action_type, size=2.0):
         price = self.data.iloc[self.current_step]["CLOSE"]
-        if action_type == "buy":
-            self.balance -= size * price  # Deduct cost of the position
-            self.position_size += size
-        elif action_type == "sell":
-            self.balance += size * price  # Add proceeds from the position
-            self.position_size -= size
 
-    def close_position(self):
-        price = self.data.iloc[self.current_step]["CLOSE"]
-        profit = self.position_size * price  # Calculate profit/loss
+        if action_type == "buy":  # Opening a long position
+            cost = size * price
+            if self.balance >= cost:  # Check if there's enough balance
+                self.balance -= cost
+                self.trades.append({"type": "buy", "size": size, "entry_price": price})
+            else:
+                print("Insufficient balance to buy.")
+        elif action_type == "sell":  # Opening a short position
+            self.trades.append({"type": "sell", "size": size, "entry_price": price})
+
+    def close_position(self, trade_index):
+        if trade_index < 0 or trade_index >= len(self.trades):
+            print("Invalid trade index.")
+            return 0
+
+        current_price = self.data.iloc[self.current_step]["CLOSE"]
+        trade = self.trades.pop(trade_index)
+
+        if trade["type"] == "buy":  # Closing a long position
+            profit = trade["size"] * (current_price - trade["entry_price"])
+        elif trade["type"] == "sell":  # Closing a short position
+            profit = trade["size"] * (trade["entry_price"] - current_price)
+        else:
+            profit = 0
+
         self.balance += profit
-        self.position_size = 0  # Reset position
         self.profit += profit
         return profit  # Use profit as reward
 
     def render(self, mode="human"):
-        print(f"Step: {self.current_step}, Balance: {self.balance}, Position Size: {self.position_size}, Profit: {self.profit}")
+        print(f"Step: {self.current_step}, Count: {len(self.trades)}, Balance: {self.balance}, Profit: {self.profit}")
+    
+
 
 # Example usage
 if __name__ == "__main__":
@@ -96,6 +124,9 @@ if __name__ == "__main__":
 
     # Save the model
     model.save("ppo_forex_trader")
+
+    # model = PPO.load("ppo_forex_trader")
+    
 
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
