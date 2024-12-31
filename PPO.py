@@ -25,7 +25,7 @@ class ForexTradingEnv(gym.Env):
     def reset(self):
         self.balance = self.initial_balance
         # self.position_size = 0
-        self.trades = []
+        self.trades = [] 
         self.current_step = 0
         self.done = False
         self.profit = 0
@@ -60,17 +60,17 @@ class ForexTradingEnv(gym.Env):
         return next_state, reward, self.done, {}
 
     def open_position(self, action_type, size=2.0):
-        price = self.data.iloc[self.current_step]["CLOSE"]
-
-        if action_type == "buy":  # Opening a long position
-            cost = size * price
-            if self.balance >= cost:  # Check if there's enough balance
-                self.balance -= cost
+        price = self.data.iloc[self.current_step]["CLOSE"] 
+        cost = size * price
+        if self.balance >= cost:  # Check if there's enough balance
+            self.balance -= cost
+            if action_type == "buy":
                 self.trades.append({"type": "buy", "size": size, "entry_price": price})
             else:
-                print("Insufficient balance to buy.")
-        elif action_type == "sell":  # Opening a short position
-            self.trades.append({"type": "sell", "size": size, "entry_price": price})
+                self.trades.append({"type": "sell", "size": size, "entry_price": price})   
+        else:
+            print("Insufficient balance to buy.")
+       
 
     def close_position(self, trade_index):
         if trade_index < 0 or trade_index >= len(self.trades):
@@ -82,12 +82,14 @@ class ForexTradingEnv(gym.Env):
 
         if trade["type"] == "buy":  # Closing a long position
             profit = trade["size"] * (current_price - trade["entry_price"])
+            self.balance += ((trade["entry_price"]*trade["size"]) + profit)
         elif trade["type"] == "sell":  # Closing a short position
             profit = trade["size"] * (trade["entry_price"] - current_price)
+            self.balance += ((trade["entry_price"]*trade["size"]) + profit)
+
         else:
             profit = 0
 
-        self.balance += profit
         self.profit += profit
         return profit  # Use profit as reward
 
