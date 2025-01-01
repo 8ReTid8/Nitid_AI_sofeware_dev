@@ -48,8 +48,13 @@ class ForexTradingEnv(gym.Env):
                     else trade["size"] * (trade["entry_price"] - current_price)
                     for trade in self.trades
                 ]
-                most_profitable_index = np.argmax(unrealized_profits)
-                reward = self.close_position(most_profitable_index)
+                max_profit = max(unrealized_profits)
+                if max_profit > 0:  # Only close if the most profitable trade has positive profit
+                    most_profitable_index = np.argmax(unrealized_profits)
+                    reward = self.close_position(most_profitable_index)
+                else:
+                    # Do nothing if no trades have positive unrealized profits
+                    reward += 0
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -112,14 +117,14 @@ if __name__ == "__main__":
     
     data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
-    data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
+    data = data.drop(["DATE","TIME"],axis=1)
     print(data)
 
     # Wrap the environment
     env = DummyVecEnv([lambda: ForexTradingEnv(data)])
 
     # Initialize the PPO model
-    model = PPO("MlpPolicy", env, verbose=1, tensorboard_log="./ppo_forex_tensorboard/")
+    model = PPO("MlpPolicy", env, verbose=1)
 
     # Train the model
     model.learn(total_timesteps=10000)
@@ -133,7 +138,7 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(100):
+    for _ in range(500):
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
