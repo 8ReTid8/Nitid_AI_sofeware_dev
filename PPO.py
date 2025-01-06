@@ -137,7 +137,6 @@ if __name__ == "__main__":
 
     # model = PPO.load("ppo_forex_trader")
     
-    jdjfkdjfsljafkldjsnvkcx
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
