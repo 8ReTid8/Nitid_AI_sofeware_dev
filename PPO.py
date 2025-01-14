@@ -33,12 +33,17 @@ class ForexTradingEnv(gym.Env):
 
     def step(self, action):
         reward = 0
+        size = 100
+        if len(self.trades) > 0:
+            for trade in self.trades:
+                trade["hold"] += 1
+        
         if action == 0:
-            reward += 0
+            reward = 0
         elif action == 1:  # Buy
-            self.open_position("buy")
+            self.open_position("buy",size)
         elif action == 2:  # Sell
-            self.open_position("sell")
+            self.open_position("sell",size)
         elif action == 3:  # Close Position
             if self.trades:  # Ensure there are trades to close
             # Find the most profitable trade
@@ -49,7 +54,7 @@ class ForexTradingEnv(gym.Env):
                     for trade in self.trades
                 ]
                 most_profitable_index = np.argmax(unrealized_profits)
-                reward = self.close_position(most_profitable_index)
+                reward = self.close_position(unrealized_profits,size)
                 
                 # max_profit = max(unrealized_profits)
                 # if max_profit > 0:  # Only close if the most profitable trade has positive profit
@@ -67,42 +72,69 @@ class ForexTradingEnv(gym.Env):
         next_state = self.data.iloc[self.current_step].values
         return next_state, reward, self.done, {}
 
-    def open_position(self, action_type, size=100.0):
-        price = self.data.iloc[self.current_step]["CLOSE"] 
-        cost = size * price
-        if self.balance >= cost:  # Check if there's enough balance
-            self.balance -= cost
-            if action_type == "buy":
-                self.trades.append({"type": "buy", "size": size, "entry_price": price})
-            else:
-                self.trades.append({"type": "sell", "size": size, "entry_price": price})   
-        # else:
-        #     print("Insufficient balance to buy.")
-       
-
-    def close_position(self, trade_index):
-        if trade_index < 0 or trade_index >= len(self.trades):
-            print("Invalid trade index.")
-            return 0
-
+    def open_position(self, action_type, size):
+        if(len(self.trades)<5):
+            price = self.data.iloc[self.current_step]["CLOSE"] 
+            cost = size * price
+            if self.balance >= cost:  # Check if there's enough balance
+                self.balance -= cost
+                if action_type == "buy":
+                    self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
+                else:
+                    self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})  
+             
+    def close_position(self, unknownprofit ,size):
+        temp = sum(unknownprofit)
+        profit = 0
+        if(temp<0.001*size):
+            # for i in range(0,len(unknownprofit)):
+            for i in range(len(unknownprofit) - 1, -1, -1):
+                if unknownprofit[i] > 0:
+                    profit += self.cal_balance(i)
+        else:
+            # for i in range(0,len(unknownprofit)):
+            for i in range(len(unknownprofit) - 1, -1, -1):
+                    profit += self.cal_balance(i)
+                
+        self.profit += profit
+        return(profit)
+    
+    
+    def cal_balance(self,index):
         current_price = self.data.iloc[self.current_step]["CLOSE"]
-        trade = self.trades.pop(trade_index)
-
+        trade = self.trades.pop(index)
         if trade["type"] == "buy":  # Closing a long position
             profit = trade["size"] * (current_price - trade["entry_price"])
             self.balance += ((trade["entry_price"]*trade["size"]) + profit)
         elif trade["type"] == "sell":  # Closing a short position
             profit = trade["size"] * (trade["entry_price"] - current_price)
             self.balance += ((trade["entry_price"]*trade["size"]) + profit)
+        return profit
+        
+       
+    # def close_position(self, trade_index):
+    #     if trade_index < 0 or trade_index >= len(self.trades):
+    #         print("Invalid trade index.")
+    #         return 0
 
-        else:
-            profit = 0
+    #     current_price = self.data.iloc[self.current_step]["CLOSE"]
+    #     trade = self.trades.pop(trade_index)
 
-        self.profit += profit
-        return profit  # Use profit as reward
+    #     if trade["type"] == "buy":  # Closing a long position
+    #         profit = trade["size"] * (current_price - trade["entry_price"])
+    #         self.balance += ((trade["entry_price"]*trade["size"]) + profit)
+    #     elif trade["type"] == "sell":  # Closing a short position
+    #         profit = trade["size"] * (trade["entry_price"] - current_price)
+    #         self.balance += ((trade["entry_price"]*trade["size"]) + profit)
+
+    #     else:
+    #         profit = 0
+
+    #     self.profit += profit
+    #     return profit  # Use profit as reward
 
     def render(self, mode="human"):
-        print(f"Step: {self.current_step}, Count: {len(self.trades)}, Balance: {self.balance}, Profit: {self.profit}")
+        print(f"Step: {self.current_step}, Order: {len(self.trades)}, Balance: {self.balance}, Profit: {self.profit}")
     
 
 
@@ -140,7 +172,7 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(500):
+    for _ in range(2000):
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
