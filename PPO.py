@@ -38,14 +38,13 @@ class ForexTradingEnv(gym.Env):
                 trade["hold"] += 1
         
         if action == 0:
-            reward = 0
+            reward = 0.0001
         elif action == 1:  # Buy
             self.open_position("buy",size)
         elif action == 2:  # Sell
             self.open_position("sell",size)
         elif action == 3:  # Close Position
-            if self.trades:  # Ensure there are trades to close
-            # Find the most profitable trade
+            if self.trades:  
                 current_price = self.data.iloc[self.current_step]["CLOSE"]
                 unrealized_profits = [
                     trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
@@ -62,6 +61,8 @@ class ForexTradingEnv(gym.Env):
                 # else:
                 #     # Do nothing if no trades have positive unrealized profits
                 #     reward += 0
+            else:
+                reward = -10
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -108,27 +109,6 @@ class ForexTradingEnv(gym.Env):
             self.balance += ((trade["entry_price"]*trade["size"]) + profit)
         return profit
         
-       
-    # def close_position(self, trade_index):
-    #     if trade_index < 0 or trade_index >= len(self.trades):
-    #         print("Invalid trade index.")
-    #         return 0
-
-    #     current_price = self.data.iloc[self.current_step]["CLOSE"]
-    #     trade = self.trades.pop(trade_index)
-
-    #     if trade["type"] == "buy":  # Closing a long position
-    #         profit = trade["size"] * (current_price - trade["entry_price"])
-    #         self.balance += ((trade["entry_price"]*trade["size"]) + profit)
-    #     elif trade["type"] == "sell":  # Closing a short position
-    #         profit = trade["size"] * (trade["entry_price"] - current_price)
-    #         self.balance += ((trade["entry_price"]*trade["size"]) + profit)
-
-    #     else:
-    #         profit = 0
-
-    #     self.profit += profit
-    #     return profit  # Use profit as reward
 
     def render(self, mode="human"):
         print(f"Step: {self.current_step}, Order: {len(self.trades)}, Balance: {self.balance}, Profit: {self.profit}")
@@ -169,7 +149,7 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(3000):
+    for _ in range(2000):
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
