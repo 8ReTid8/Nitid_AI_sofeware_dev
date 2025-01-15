@@ -1,8 +1,8 @@
-FROM node:lastest
+FROM node:alpine
 
 WORKDIR /app
 
-COPY ./pakage.json ./
+COPY ./package.json ./
 COPY ./package-lock.json ./
 COPY ./prisma ./ 
 

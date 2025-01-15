@@ -24,7 +24,6 @@ class ForexTradingEnv(gym.Env):
 
     def reset(self):
         self.balance = self.initial_balance
-        # self.position_size = 0
         self.trades = [] 
         self.current_step = 0
         self.done = False
@@ -53,7 +52,7 @@ class ForexTradingEnv(gym.Env):
                     else trade["size"] * (trade["entry_price"] - current_price)
                     for trade in self.trades
                 ]
-                most_profitable_index = np.argmax(unrealized_profits)
+                # most_profitable_index = np.argmax(unrealized_profits)
                 reward = self.close_position(unrealized_profits,size)
                 
                 # max_profit = max(unrealized_profits)
@@ -86,13 +85,11 @@ class ForexTradingEnv(gym.Env):
     def close_position(self, unknownprofit ,size):
         temp = sum(unknownprofit)
         profit = 0
-        if(temp<0.001*size):
-            # for i in range(0,len(unknownprofit)):
+        if(temp<0.003*size):
             for i in range(len(unknownprofit) - 1, -1, -1):
-                if unknownprofit[i] > 0:
+                if unknownprofit[i] > 0 or self.trades[i]["hold"] > 168:
                     profit += self.cal_balance(i)
         else:
-            # for i in range(0,len(unknownprofit)):
             for i in range(len(unknownprofit) - 1, -1, -1):
                     profit += self.cal_balance(i)
                 
@@ -172,7 +169,7 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(2000):
+    for _ in range(3000):
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
