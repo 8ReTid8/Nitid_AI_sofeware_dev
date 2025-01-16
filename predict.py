@@ -63,14 +63,15 @@ def send_order(action, symbol="EURUSD", lot=0.1):
     if action == 0:  # Hold
         print("Action: Hold. No orders sent.")
     elif action == 1:  # Buy Long
-        max_retries = 3  # Limit retries to prevent infinite loop
-        retries = 0
-
+        
         symbol_info = mt5.symbol_info(symbol)
         if not symbol_info or not symbol_info.visible:
             print(f"Symbol {symbol} not found or not visible.")
             return
-
+        
+        max_retries = 3  # Limit retries to prevent infinite loop
+        retries = 0
+        
         while retries < max_retries:
             request = {
                 "action": mt5.TRADE_ACTION_DEAL,
@@ -150,24 +151,14 @@ def send_order(action, symbol="EURUSD", lot=0.1):
             return
         
         profitsum = 0
+        profitplussum = 0
         for pos in positions:
             profitsum += pos.profit
+        for pos in positions:
+            if pos.profit>0:
+                profitplussum += pos.profit
         
-        if profitsum<10:
-            for pos in positions:
-                if pos.profit>0:
-                    if pos.type == mt5.ORDER_TYPE_BUY:
-                        order_type = mt5.ORDER_TYPE_SELL
-                        price = tick.bid
-                    elif pos.type == mt5.ORDER_TYPE_SELL:
-                        order_type = mt5.ORDER_TYPE_BUY
-                        price = tick.ask
-                else:
-                    print(f"Unknown position type: {pos.type}")
-                    continue
-                close_position(pos, symbol, tick,order_type,price)
-
-        else:
+        if profitsum>5:
             for pos in positions:
                 if pos.type == mt5.ORDER_TYPE_BUY:
                     order_type = mt5.ORDER_TYPE_SELL
@@ -178,13 +169,26 @@ def send_order(action, symbol="EURUSD", lot=0.1):
                 else:
                     print(f"Unknown position type: {pos.type}")
                     continue
+                close_position(pos, symbol, tick,order_type,price)
                 
+        elif profitplussum>5:
+            for pos in positions:
+                if pos.profit>0 or pos.profit<-10:
+                    if pos.type == mt5.ORDER_TYPE_BUY:
+                        order_type = mt5.ORDER_TYPE_SELL
+                        price = tick.bid
+                    elif pos.type == mt5.ORDER_TYPE_SELL:
+                        order_type = mt5.ORDER_TYPE_BUY
+                        price = tick.ask
+                else:
+                    print(f"Unknown position type: {pos.type} {profitsum}")
+                    continue
                 close_position(pos, symbol, tick,order_type,price)
                 
 
     elif action == 4:  # Do Nothing
         print("Action: Do Nothing. No orders sent.")
-
+    
 def close_position(pos, symbol, tick,order_type,price):
     max_retries = 3
     retries = 0

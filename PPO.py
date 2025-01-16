@@ -117,17 +117,11 @@ class ForexTradingEnv(gym.Env):
 
 # Example usage
 if __name__ == "__main__":
-    # Load dummy forex data
-
-    # data = pd.DataFrame({
-    #     "Open": np.random.rand(1000) + 1.1,
-    #     "High": np.random.rand(1000) + 1.2,
-    #     "Low": np.random.rand(1000) + 1.0,
-    #     "Close": np.random.rand(1000) + 1.15,
-    #     "Volume": np.random.randint(100, 200, 1000),
-    # })
     
-    data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
+    #data
+    # data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
+    data = pd.read_csv('EURUSD_M1.csv', delimiter='\t')
+    
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
     data = data.drop(["DATE","TIME"],axis=1)
     print(data)
