@@ -36,13 +36,16 @@ class ForexTradingEnv(gym.Env):
         if len(self.trades) > 0:
             for trade in self.trades:
                 trade["hold"] += 1
-        
+                
         if action == 0:
-            reward = 0.0001
+            if len(self.trades) == 0:
+                reward = -1
+            else :
+                reward = -0.01
         elif action == 1:  # Buy
-            self.open_position("buy",size)
+            reward = self.open_position("buy",size)
         elif action == 2:  # Sell
-            self.open_position("sell",size)
+            reward = self.open_position("sell",size)
         elif action == 3:  # Close Position
             if self.trades:  
                 current_price = self.data.iloc[self.current_step]["CLOSE"]
@@ -51,9 +54,9 @@ class ForexTradingEnv(gym.Env):
                     else trade["size"] * (trade["entry_price"] - current_price)
                     for trade in self.trades
                 ]
-                # most_profitable_index = np.argmax(unrealized_profits)
                 reward = self.close_position(unrealized_profits,size)
-                
+
+                # most_profitable_index = np.argmax(unrealized_profits)                
                 # max_profit = max(unrealized_profits)
                 # if max_profit > 0:  # Only close if the most profitable trade has positive profit
                 #     most_profitable_index = np.argmax(unrealized_profits)
@@ -62,7 +65,7 @@ class ForexTradingEnv(gym.Env):
                 #     # Do nothing if no trades have positive unrealized profits
                 #     reward += 0
             else:
-                reward = -10
+                reward = -1
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -73,15 +76,19 @@ class ForexTradingEnv(gym.Env):
         return next_state, reward, self.done, {}
 
     def open_position(self, action_type, size):
+        price = self.data.iloc[self.current_step]["CLOSE"] 
+        cost = size * price
+        if self.balance >= cost:  # Check if there's enough balance
+            self.balance -= cost
+            if action_type == "buy":
+                self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
+            else:
+                self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})
+            
         if(len(self.trades)<5):
-            price = self.data.iloc[self.current_step]["CLOSE"] 
-            cost = size * price
-            if self.balance >= cost:  # Check if there's enough balance
-                self.balance -= cost
-                if action_type == "buy":
-                    self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
-                else:
-                    self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})  
+            return 0.1
+        else:
+            return -0.5
              
     def close_position(self, unknownprofit ,size):
         temp = sum(unknownprofit)

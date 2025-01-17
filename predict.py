@@ -184,7 +184,8 @@ def send_order(action, symbol="EURUSD", lot=0.1):
                     print(f"Unknown position type: {pos.type} {profitsum}")
                     continue
                 close_position(pos, symbol, tick,order_type,price)
-                
+        else:
+            print("there is no not reach minimum profit")
 
     elif action == 4:  # Do Nothing
         print("Action: Do Nothing. No orders sent.")
