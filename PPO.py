@@ -65,7 +65,7 @@ class ForexTradingEnv(gym.Env):
                 #     # Do nothing if no trades have positive unrealized profits
                 #     reward += 0
             else:
-                reward = -1
+                reward = -2
 
         # Update state and check if the episode is done
         self.current_step += 1

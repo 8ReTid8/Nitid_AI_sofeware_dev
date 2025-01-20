@@ -30,7 +30,7 @@ def evaluate_model(data, model_path="ppo_forex_trader.zip"):
     
 def fetch_eur_usd_data(symbol="EURUSD"):
     """Fetch the last 1 minute of EURUSD data from MT5 and prepare a 7-feature state."""
-    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 1)
+    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, 1)
 
     if rates is not None and len(rates) > 0:
         rate = rates[0]
@@ -154,10 +154,9 @@ def send_order(action, symbol="EURUSD", lot=0.1):
         profitplussum = 0
         for pos in positions:
             profitsum += pos.profit
-        for pos in positions:
             if pos.profit>0:
                 profitplussum += pos.profit
-        
+                
         if profitsum>5:
             for pos in positions:
                 if pos.type == mt5.ORDER_TYPE_BUY:
