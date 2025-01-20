@@ -12,7 +12,7 @@ def load_model(model_path):
     model = PPO.load(model_path)
     return model
 
-def evaluate_model(data, model_path="ppo_forex_trader.zip"):
+def evaluate_model(data, model_path="/temp_ai/ppo_forex_trader.zip"):
     """Evaluate the model and predict actions."""
     model = load_model(model_path)
     
@@ -230,7 +230,7 @@ def close_position(pos, symbol, tick,order_type,price):
             
 # Example Usage
 if __name__ == "__main__":
-    model_path = "ppo_forex_trader.zip"  # Path to your trained model
+    model_path = "./temp_ai/ppo_forex_trader"  # Path to your trained model
     
     # Log in to MT5
     login = 89468246 # Your login
