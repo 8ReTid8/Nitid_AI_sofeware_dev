@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from stable_baselines3 import PPO
 import MetaTrader5 as mt5
 from datetime import datetime
@@ -28,33 +29,53 @@ def evaluate_model(data, model_path="/temp_ai/ppo_forex_trader.zip"):
     return int(action)  # Convert action to int
 
     
-def fetch_eur_usd_data(symbol="EURUSD"):
-    """Fetch the last 1 minute of EURUSD data from MT5 and prepare a 7-feature state."""
-    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, 1)
+# def fetch_eur_usd_data(symbol="EURUSD"):
+#     """Fetch the last 1 minute of EURUSD data from MT5 and prepare a 7-feature state."""
+#     rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, 1)
 
-    if rates is not None and len(rates) > 0:
-        rate = rates[0]
-        time_stamp = datetime.fromtimestamp(rate[0])
-        open_price = rate[1]
-        high_price = rate[2]
-        low_price = rate[3]
-        close_price = rate[4]
-        volume = rate[5]
+#     if rates is not None and len(rates) > 0:
+#         rate = rates[0]
+#         time_stamp = datetime.fromtimestamp(rate[0])
+#         open_price = rate[1]
+#         high_price = rate[2]
+#         low_price = rate[3]
+#         close_price = rate[4]
+#         volume = rate[5]
         
-        print(f"Time: {time_stamp}, Open: {open_price}, High: {high_price}, Low: {low_price}, Close: {close_price}, Volume: {volume}")
+#         print(f"Time: {time_stamp}, Open: {open_price}, High: {high_price}, Low: {low_price}, Close: {close_price}, Volume: {volume}")
         
-        # Example of a 7-feature state
-        return np.array([
-            open_price,
-            high_price,
-            low_price,
-            close_price,
-            volume,
-            high_price - low_price,        # Range
-            close_price - open_price       # Price change
-        ])
+#         # Example of a 7-feature state
+#         return np.array([
+#             open_price,
+#             high_price,
+#             low_price,
+#             close_price,
+#             volume,
+#             high_price - low_price,        # Range
+#             close_price - open_price       # Price change
+#         ])
+#     else:
+#         print("Failed to retrieve data.")
+#         return None
+def fetch_eur_usd_data(symbol="EURUSD", window_size=20):
+    """
+    Fetch the last `window_size` minutes of EURUSD data from MT5 and prepare a state.
+    """
+    rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_M1, 0, window_size)
+
+    if rates is not None and len(rates) == window_size:
+        rates_df = pd.DataFrame(rates)
+        rates_df['range'] = rates_df['high'] - rates_df['low']
+        rates_df['price_change'] = rates_df['close'] - rates_df['open']
+
+        # Select the required columns and convert to a NumPy array
+        features = rates_df[['open', 'high', 'low', 'close', 'tick_volume', 'range', 'price_change']].values
+
+        # Flatten the array
+        state = features.flatten()
+        return state
     else:
-        print("Failed to retrieve data.")
+        print("Insufficient data retrieved or failed to retrieve data.")
         return None
 
 
@@ -247,7 +268,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            data = fetch_eur_usd_data()
+            data = fetch_eur_usd_data(window_size=20)
             if data is not None:
                 action = evaluate_model(data, model_path)
                 send_order(action)

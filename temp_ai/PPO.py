@@ -6,18 +6,19 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 class ForexTradingEnv(gym.Env):
-    def __init__(self, data, initial_balance=10000, max_position_size=1.0):
+    def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=20):
         super(ForexTradingEnv, self).__init__()
         self.data = data
         self.initial_balance = initial_balance
         self.max_position_size = max_position_size
+        self.window_size = window_size
 
         # Define action space: [0: Hold, 1: Buy, 2: Sell, 3: Close Position]
         self.action_space = spaces.Discrete(4)
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(self.data.shape[1],), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size * self.data.shape[1],), dtype=np.float32
         )
 
         self.reset()
@@ -25,14 +26,24 @@ class ForexTradingEnv(gym.Env):
     def reset(self):
         self.balance = self.initial_balance
         self.trades = [] 
-        self.current_step = 0
+        self.current_step = self.window_size
         self.done = False
         self.profit = 0
-        return self.data.iloc[self.current_step].values
+        # return self.data.iloc[self.current_step].values
+        return self._get_state()
+    
+    def _get_state(self):
+        """
+        Create the current state by stacking features from the last `window_size` steps.
+        """
+        start = self.current_step - self.window_size
+        end = self.current_step
+        state = self.data.iloc[start:end].values.flatten()
+        return state
 
     def step(self, action):
         reward = 0
-        size = 100
+        size = 10000
         if len(self.trades) > 0:
             for trade in self.trades:
                 trade["hold"] += 1
@@ -55,15 +66,6 @@ class ForexTradingEnv(gym.Env):
                     for trade in self.trades
                 ]
                 reward = self.close_position(unrealized_profits,size)
-
-                # most_profitable_index = np.argmax(unrealized_profits)                
-                # max_profit = max(unrealized_profits)
-                # if max_profit > 0:  # Only close if the most profitable trade has positive profit
-                #     most_profitable_index = np.argmax(unrealized_profits)
-                #     reward = self.close_position(most_profitable_index)
-                # else:
-                #     # Do nothing if no trades have positive unrealized profits
-                #     reward += 0
             else:
                 reward = -2
 
@@ -72,7 +74,7 @@ class ForexTradingEnv(gym.Env):
         if self.current_step >= len(self.data) - 1:
             self.done = True
 
-        next_state = self.data.iloc[self.current_step].values
+        next_state = self._get_state()
         return next_state, reward, self.done, {}
 
     def open_position(self, action_type, size):
@@ -93,7 +95,7 @@ class ForexTradingEnv(gym.Env):
     def close_position(self, unknownprofit ,size):
         temp = sum(unknownprofit)
         profit = 0
-        if(temp<0.003*size):
+        if(temp<5):
             for i in range(len(unknownprofit) - 1, -1, -1):
                 if unknownprofit[i] > 0 or self.trades[i]["hold"] > 168:
                     profit += self.cal_balance(i)
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     
     #data
     # data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
-    data = pd.read_csv('EURUSD_M1.csv', delimiter='\t')
+    data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
     data = data.drop(["DATE","TIME"],axis=1)
@@ -143,7 +145,7 @@ if __name__ == "__main__":
     model.learn(total_timesteps=10000)
 
     # Save the model
-    model.save("ppo_forex_trader")
+    model.save("./temp_ai/ppo_forex_trader")
 
     # model = PPO.load("ppo_forex_trader")
     
