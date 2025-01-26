@@ -48,15 +48,24 @@ class ForexTradingEnv(gym.Env):
             for trade in self.trades:
                 trade["hold"] += 1
                 
-        if action == 0:
+        if action == 0: # Hold
             if len(self.trades) == 0:
                 reward = -1
             else :
                 reward = -0.01
+
         elif action == 1:  # Buy
-            reward = self.open_position("buy",size)
+            if len(self.trades) < 5:
+                reward = self.open_position("buy", size)
+            else:
+                reward = -1
+                
         elif action == 2:  # Sell
-            reward = self.open_position("sell",size)
+            if len(self.trades) < 5:
+                reward = self.open_position("sell", size)
+            else:
+                reward = -1
+        
         elif action == 3:  # Close Position
             if self.trades:  
                 current_price = self.data.iloc[self.current_step]["CLOSE"]
@@ -86,11 +95,8 @@ class ForexTradingEnv(gym.Env):
                 self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
             else:
                 self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})
-            
-        if(len(self.trades)<5):
-            return 0.1
-        else:
-            return -0.5
+        return 0.1
+       
              
     def close_position(self, unknownprofit ,size):
         temp = sum(unknownprofit)
