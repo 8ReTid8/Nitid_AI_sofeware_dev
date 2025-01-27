@@ -6,14 +6,20 @@ export default function Nav() {
             <div className="flex-1">
                 <a className="btn btn-ghost text-xl">DOLLARS</a>
                 <ul className="menu menu-horizontal px-10">
-                    <li>
-                        <a className="font-bold text-base">Bot</a>
+                <li>
+                        <Link href="/bot" className="font-bold text-base">
+                            Bot
+                        </Link>
                     </li>
                     <li>
-                        <a className="font-bold text-base">Accounts</a>
+                        <Link href="/accounts" className="font-bold text-base">
+                            Accounts
+                        </Link>
                     </li>
                     <li>
-                        <a className="font-bold text-base">Payment</a>
+                        <Link href="/payment" className="font-bold text-base">
+                            Payment
+                        </Link>
                     </li>
                 </ul>
             </div>
