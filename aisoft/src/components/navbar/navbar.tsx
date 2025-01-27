@@ -2,11 +2,13 @@ import Link from "next/link";
 
 export default function Nav() {
     return (
-        <div className="navbar bg-neutral text-neutral-content">
+        <div className="navbar bg-red-500 text-white">
             <div className="flex-1">
-                <a className="btn btn-ghost text-xl">DOLLARS</a>
+                <Link href="/" className="btn btn-ghost text-xl">
+                    DOLLARS
+                </Link>
                 <ul className="menu menu-horizontal px-10">
-                <li>
+                    <li>
                         <Link href="/bot" className="font-bold text-base">
                             Bot
                         </Link>
@@ -24,11 +26,16 @@ export default function Nav() {
                 </ul>
             </div>
             <div className="flex-none">
-
-                <div className="dropdown dropdown-end">
-                    {/* <Link href="/auth/login" className="btn btn-primary btn-outline">sign in</Link> */}
-                    <div tabIndex={0} role="button" className="btn btn-ghost font-bold" >
+                <div role="button" className="btn btn-ghost font-bold" >
+                    <Link href="/auth/login" className="font-bold text-base">
                         Sign in
+                    </Link>
+                </div>
+                {/* <div className="dropdown dropdown-end">
+                    <div tabIndex={0} role="button" className="btn btn-ghost font-bold" >
+                        <Link href="/auth/login" className="font-bold text-base">
+                            Sign in
+                        </Link>
                     </div>
                     <ul
                         tabIndex={0}
@@ -41,7 +48,7 @@ export default function Nav() {
                         <li><a>Settings</a></li>
                         <li><a>Logout</a></li>
                     </ul>
-                </div>
+                </div> */}
             </div>
         </div>
     )
