@@ -166,8 +166,10 @@ if __name__ == "__main__":
     data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
+    data['DATETIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
     data = data.drop(["DATE","TIME"],axis=1)
-
+    data['DATETIME'] = data['DATETIME'].astype(np.int64)
+    print(data)
     # Wrap the environment
     env = DummyVecEnv([lambda: ForexTradingEnv(data)])
 
