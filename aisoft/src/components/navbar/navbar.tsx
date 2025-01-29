@@ -27,7 +27,7 @@ export default function Nav() {
             </div>
             <div className="flex-none">
                 <div role="button" className="btn btn-ghost font-bold" >
-                    <Link href="/auth/login" className="font-bold text-base">
+                    <Link href="/login" className="font-bold text-base">
                         Sign in
                     </Link>
                 </div>
