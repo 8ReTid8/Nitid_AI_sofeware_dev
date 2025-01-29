@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.callbacks import EvalCallback
 
 class ForexTradingEnv(gym.Env):
     def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=20):
@@ -120,8 +121,8 @@ class ForexTradingEnv(gym.Env):
             profit = self.current_trade["size"] * (current_price - self.current_trade["entry_price"])
             self.balance += ((self.current_trade["entry_price"]*self.current_trade["size"]) + profit)
         elif self.current_trade["type"] == "sell":  # Closing a short position
-            profit = self.current_trade["size"] * (self.current_trade["entry_price"] - current_price)
-            self.balance += ((self.current_trade["entry_price"]*self.current_trade["size"]) + profit)
+            profit = self.current_trade["size"] * (self.current_trade["entry_price"] - current_price) 
+            self.balance += ((self.current_trade["entry_price"]*self.current_trade["size"]) + profit) 
         self.profit += profit
         self.current_trade = None
         return profit
@@ -159,11 +160,12 @@ class ForexTradingEnv(gym.Env):
 
 
 # Example usage
+
 if __name__ == "__main__":
     
     #data
     # data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
-    data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
+    data = pd.read_csv('./temp_ai/EURUSD_H1.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
     data['DATETIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
@@ -175,19 +177,31 @@ if __name__ == "__main__":
 
     # Initialize the PPO model
     model = PPO("MlpPolicy", env, verbose=1)
-
+    
+    # eval_callback = EvalCallback(
+    #     env,  # Environment สำหรับการประเมินผล
+    #     best_model_save_path='./temp_ai/best_model/',  # ที่เก็บโมเดลที่ดีที่สุด
+    #     log_path='./logs/',  # ที่เก็บ logs
+    #     eval_freq=5000,  # ความถี่ในการประเมินผล
+    #     deterministic=True,  # ใช้ deterministic policy
+    #     render=False,  # ไม่ต้องแสดงการแสดงผล
+    # )
+    
     # Train the model
+    # model.learn(total_timesteps=10000, callback=eval_callback)
+    
     model.learn(total_timesteps=10000)
+    
 
     # Save the model
     model.save("./temp_ai/ppo_forex_trader")
 
-    # model = PPO.load("ppo_forex_trader")
+    # model = PPO.load("./temp_ai/best_model/best_model")
     
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(50000):
+    while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
