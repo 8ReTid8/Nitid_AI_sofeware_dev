@@ -16,7 +16,7 @@ const userSchema = z.object({
 export async function POST(req: Request){
     try{
         const body = await req.json();
-        const { email,username,password} = userSchema.parse(body);
+        const { email,username,password} = body;
         const userExist = await prisma.user.findUnique({
             where: {
                 user_email: email
@@ -40,6 +40,9 @@ export async function POST(req: Request){
         })
         return NextResponse.json(body);
     } catch(error){
-
+        console.error(error);
+        return NextResponse.json(
+            { user: null,message:"An error occurred"},
+            {status: 500})
     }
 }

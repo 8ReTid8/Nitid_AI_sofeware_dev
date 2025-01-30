@@ -51,7 +51,7 @@ export default function SignInForm() {
                         type="submit" 
                         className="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
                     >
-                        Sign In hi
+                        Sign In
                     </button>
                     <div className="text-center text-sm text-gray-600">
                         Don't have an account? <Link href="/register" className="text-blue-600 hover:underline">Register</Link>
