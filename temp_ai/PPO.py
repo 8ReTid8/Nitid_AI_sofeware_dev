@@ -14,11 +14,11 @@ class ForexTradingEnv(gym.Env):
         self.window_size = window_size
 
         # Define action space: [0: Hold, 1: Buy, 2: Sell, 3: Close Position]
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(3)
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(window_size * self.data.shape[1],), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(20,5), dtype=np.float32
         )
 
         self.reset()
@@ -38,7 +38,7 @@ class ForexTradingEnv(gym.Env):
         """
         start = self.current_step - self.window_size
         end = self.current_step
-        state = self.data.iloc[start:end].values.flatten()
+        state = self.data.iloc[start:end].values
         return state
 
     def step(self, action):
@@ -52,31 +52,46 @@ class ForexTradingEnv(gym.Env):
             if len(self.trades) == 0:
                 reward = -1
             else :
-                reward = -0.01
+                reward = 0.01
 
         elif action == 1:  # Buy
-            if len(self.trades) < 5:
-                reward = self.open_position("buy", size)
-            else:
-                reward = -1
+            # if len(self.trades) < 5:
+            #     reward = self.open_position("buy", size)
+            # else:
+            #     reward = -1
+            profit = 0
+            for i in range(len(self.trades) - 1, -1, -1):
+                if self.trades[i]["type"] == "sell":
+                    profit += self.cal_balance(i)
+                    self.profit += profit
+            reward = profit
+            self.open_position("buy", size)                    
                 
         elif action == 2:  # Sell
-            if len(self.trades) < 5:
-                reward = self.open_position("sell", size)
-            else:
-                reward = -1
-        
-        elif action == 3:  # Close Position
-            if self.trades:  
-                current_price = self.data.iloc[self.current_step]["CLOSE"]
-                unrealized_profits = [
-                    trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
-                    else trade["size"] * (trade["entry_price"] - current_price)
-                    for trade in self.trades
-                ]
-                reward = self.close_position(unrealized_profits,size)
-            else:
-                reward = -2
+            # if len(self.trades) < 5:
+            #     reward = self.open_position("sell", size)
+            # else:
+            #     reward = -1
+            profit = 0
+            for i in range(len(self.trades) - 1, -1, -1):
+                if self.trades[i]["type"] == "buy":
+                    profit += self.cal_balance(i)
+                    self.profit += profit
+            reward = profit
+            self.open_position("sell", size)  
+  
+            
+        # elif action == 3:  # Close Position
+        #     if self.trades:  
+        #         current_price = self.data.iloc[self.current_step]["CLOSE"]
+        #         unrealized_profits = [
+        #             trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
+        #             else trade["size"] * (trade["entry_price"] - current_price)
+        #             for trade in self.trades
+        #         ]
+        #         reward = self.close_position(unrealized_profits,size)
+        #     else:
+        #         reward = -2
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -97,20 +112,20 @@ class ForexTradingEnv(gym.Env):
                 self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})
         return 0.1
        
-             
-    def close_position(self, unknownprofit ,size):
-        temp = sum(unknownprofit)
-        profit = 0
-        if(temp<5):
-            for i in range(len(unknownprofit) - 1, -1, -1):
-                if unknownprofit[i] > 0 or self.trades[i]["hold"] > 168:
-                    profit += self.cal_balance(i)
-        else:
-            for i in range(len(unknownprofit) - 1, -1, -1):
-                    profit += self.cal_balance(i)
+     
+    # def close_position(self, unknownprofit ,size):
+        # temp = sum(unknownprofit)
+        # profit = 0
+        # if(temp<5):
+        #     for i in range(len(unknownprofit) - 1, -1, -1):
+        #         if unknownprofit[i] > 0 or self.trades[i]["hold"] > 168:
+        #             profit += self.cal_balance(i)
+        # else:
+        #     for i in range(len(unknownprofit) - 1, -1, -1):
+        #             profit += self.cal_balance(i)
                 
-        self.profit += profit
-        return(profit)
+    #     self.profit += profit
+    #     return(profit)
     
     
     def cal_balance(self,index):
@@ -126,7 +141,7 @@ class ForexTradingEnv(gym.Env):
         
 
     def render(self, mode="human"):
-        print(f"Step: {self.current_step}, Order: {len(self.trades)}, Balance: {self.balance}, Profit: {self.profit}")
+        print(f"Step: {self.current_step}, Action: {action}, Order: {len(self.trades)}, Balance: {self.balance}, Profit: {self.profit}")
     
 
 
@@ -134,11 +149,15 @@ class ForexTradingEnv(gym.Env):
 if __name__ == "__main__":
     
     #data
-    # data = pd.read_csv('EURUSD_H1.csv', delimiter='\t')
-    data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
+    data = pd.read_csv('./temp_ai/EURUSD_H1.csv', delimiter='\t')
+    # data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
+    # data = pd.read_csv('./temp_ai/test.csv', delimiter='\t')
+    
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
-    data = data.drop(["DATE","TIME"],axis=1)
+    # data['DATETIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
+    data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
+    # data['DATETIME'] = data['DATETIME'].astype(np.int64)
     print(data)
 
     # Wrap the environment
@@ -158,7 +177,8 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(2000):
+    # for _ in range(2000):
+    while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
