@@ -16,6 +16,13 @@ const userSchema = z.object({
 export async function POST(req: Request){
     try{
         const body = await req.json();
+        const validated = userSchema.safeParse(body);
+        if(!validated.success){
+            return NextResponse.json(
+                { user: null,message:"Invalid data"},
+                {status: 400}
+            )
+        }
         const { email,username,password} = body;
         const userExist = await prisma.user.findUnique({
             where: {

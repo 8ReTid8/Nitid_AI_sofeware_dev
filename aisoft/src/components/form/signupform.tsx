@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function SignUpForm() {
-    // const FormSchema = z.object({
-    //     username: z.string().min(1, "Username is requried").max(100),
-    //     email: z.string().min(1,"Email is required").email('invalid email'),
-    //     password:z
-    //         .string()
-    //         .min(1,'password is required')
-    //         .min(8,'password must have than 8 characters'),
-    //     confirmPassword: z.string().min(1, "Confirm password is required"),
-    // })
+    const FormSchema = z.object({
+        username: z.string().min(1, "Username is requried").max(100),
+        email: z.string().min(1,"Email is required").email('invalid email'),
+        password:z
+            .string()
+            .min(1,'password is required')
+            .min(8,'password must have than 8 characters'),
+        // confirmPassword: z.string().min(1, "Confirm password is required"),
+    })
     // .refine((data) => data.password === data.confirmPassword, {
     //     path: ["confirmPassword"],
     //     message: "Passwords do not match",
@@ -50,6 +50,11 @@ export default function SignUpForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const validated = FormSchema.safeParse({ username, email, password });
+        if (!validated.success) {
+            console.error(validated.error);
+            return;
+        }
         const response = await fetch('/api/signup', {
             method: 'POST',
             headers: {
@@ -63,6 +68,7 @@ export default function SignUpForm() {
             console.error('An error occurred');
         }
     };
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100">
             <div className="w-full max-w-md p-8 space-y-6 bg-white shadow-lg rounded-2xl">
