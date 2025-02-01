@@ -18,7 +18,7 @@ class ForexTradingEnv(gym.Env):
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(20,5), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size,5), dtype=np.float32
         )
 
         self.reset()

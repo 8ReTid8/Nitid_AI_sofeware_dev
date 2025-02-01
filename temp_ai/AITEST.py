@@ -95,7 +95,7 @@ if not mt5.initialize():
 
 # Get historical data (1-minute OHLC)
 symbol = "EURUSD"
-rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_D1, 0, 1000)  # Get last 10000 1-minute bars
+rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 1000)  # Get last 10000 1-minute bars
 
 df = pd.DataFrame(rates)
 df['time'] = pd.to_datetime(df['time'], unit='s')
