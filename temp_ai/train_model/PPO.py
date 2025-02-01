@@ -149,7 +149,7 @@ class ForexTradingEnv(gym.Env):
 if __name__ == "__main__":
     
     #data
-    data = pd.read_csv('./temp_ai/EURUSD_H1.csv', delimiter='\t')
+    data = pd.read_csv('./temp_ai/data/EURUSD_H1.csv', delimiter='\t')
     # data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
     # data = pd.read_csv('./temp_ai/test.csv', delimiter='\t')
     

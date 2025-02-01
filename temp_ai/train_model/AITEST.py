@@ -95,7 +95,7 @@ if not mt5.initialize():
 
 # Get historical data (1-minute OHLC)
 symbol = "EURUSD"
-rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 1000)  # Get last 10000 1-minute bars
+rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_D1, 0, 1000)  # Get last 10000 1-minute bars
 
 df = pd.DataFrame(rates)
 df['time'] = pd.to_datetime(df['time'], unit='s')
@@ -130,25 +130,34 @@ class AIPredictStrategy(Strategy):
             print(f"AI Prediction: {action_signal}")
 
             # Convert action_signal to trading actions
-            if action_signal == 0:  # Long position
-                if self.position and self.position.is_short:
-                    print("Closing all short positions before opening long")
-                    self.position.close()
+            if action_signal == 1:  # Long positio
+                # if any(p.is_short for p in self.trades):  
+                #     print("Closing all short positions before opening long")
+                #     for p in self.trades:
+                #         if p.is_short:
+                #             p.close()
+                for p in self.trades:
+                    if p.is_short:
+                        p.close()
+                # if not any(p.is_long for p in self.position):  # Open only 1 long position
+                print("Opening long position")
+                self.buy()
 
-                if len(self.trades) < self.max_positions:
-                    print("Opening long position")
-                    self.buy()
+            elif action_signal == 2:  # Short position
+                # if any(p.is_long for p in self.trades):
+                #     print("Closing all long positions before opening short")
+                #     for p in self.trades:
+                #         if p.is_long:
+                #             p.close()
+                
+                for p in self.trades:
+                    if p.is_long:
+                        p.close()
+                # if not any(p.is_short for p in self.position):  # Open only 1 short position
+                print("Opening short position")
+                self.sell()
 
-            elif action_signal == 1:  # Short position
-                if self.position and self.position.is_long:
-                    print("Closing all long positions before opening short")
-                    self.position.close()
-
-                if len(self.trades) < self.max_positions:
-                    print("Opening short position")
-                    self.sell()
-
-            elif action_signal == 2:  # Hold
+            elif action_signal == 0:  # Hold
                 print("AI predicted HOLD - No action taken.")
                 pass  # Do nothing (hold position)
 
