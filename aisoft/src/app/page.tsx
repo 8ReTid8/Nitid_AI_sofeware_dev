@@ -1,4 +1,4 @@
-import Chart from "@/components/dashchart";
+import Chart from "@/components/forexgraph/dashchart";
 import Image from "next/image";
 
 export default function Home() {
