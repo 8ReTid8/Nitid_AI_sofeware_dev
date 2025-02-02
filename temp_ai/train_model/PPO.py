@@ -6,7 +6,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 
 class ForexTradingEnv(gym.Env):
-    def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=20):
+    def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=48):
         super(ForexTradingEnv, self).__init__()
         self.data = data
         self.initial_balance = initial_balance

@@ -47,7 +47,7 @@ def main():
             # แปลงคอลัมน์ Time เป็น datetime
             # รวมข้อมูลใหม่เข้า DataFrame หลัก
             df = pd.concat([df, new_rows], ignore_index=True)
-
+            df = df.drop(["Time"],axis=1)
             # # คำนวณ Indicator
             # df.set_index('Datetime',inplace=True)
             # df["SMA"] = ta.trend.sma_indicator(df["Close"], window=12)
@@ -68,10 +68,12 @@ def main():
 
         # ตอบกลับไปยัง MT5
         
-        prediction, _ = model.predict(df.tail(24))
+        prediction, _ = model.predict(df.tail(48))
         print("prediction",prediction)
         
+        # socket.send_string(str(prediction))
         socket.send_string(str(prediction))
+        
 
 if __name__ == "__main__":
     main()
