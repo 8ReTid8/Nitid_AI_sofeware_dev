@@ -1,9 +1,20 @@
 import SignUpForm from "@/components/form/signupform";
+import { authSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function SignUp() {
-    return(
+export default async function SignUp() {
+    const session = await authSession();
+    if (session?.user) {
+        if (session?.user.role === "admin") {
+            return redirect("/admin");
+        }
+        else {
+            return redirect("/");
+        }
+    }
+    return (
         <div>
-            <SignUpForm/>
+            <SignUpForm />
         </div>
     )
 }

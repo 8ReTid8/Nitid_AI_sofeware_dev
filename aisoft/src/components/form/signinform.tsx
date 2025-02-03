@@ -1,4 +1,5 @@
 "use client";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,23 +9,41 @@ export default function SignInForm() {
     const [password, setPassword] = useState("");
     const router = useRouter();
 
+    // const handleSubmit = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     const response = await fetch('/api/signin', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({ email, password }),
+    //     });
+    //     console.log(response);
+    //     const data = await response.json();
+    //     if (response.ok) {
+    //         router.push('/');
+    //     } else {
+    //         console.error(data.message);
+    //     }
+    // };
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const response = await fetch('/api/signin', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-        console.log(response);
-        const data = await response.json();
-        if (response.ok) {
-            router.push('/');
+        console.log(email, password);
+        const sigInData = await signIn('credentials', {
+            email: email,
+            password: password,
+            redirect: false,
+        })
+        console.log(sigInData?.url)
+        if (sigInData?.error) {
+            console.log(sigInData.error);
         } else {
-            console.error(data.message);
+            console.log(sigInData);
+            router.push('/');
+            router.refresh();
         }
-    };
+    }
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-100">
