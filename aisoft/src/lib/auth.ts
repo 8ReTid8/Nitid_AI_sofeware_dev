@@ -2,7 +2,8 @@ import { getServerSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
-import { compare } from "bcrypt";
+// import { compare } from "bcrypt";
+import { verify } from "argon2";
 import { get } from "http";
 import { revalidatePath } from "next/cache";
 // interface CustomUser extends User {
@@ -44,7 +45,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
         
-        const passwordMatch = await compare(credentials.password, existingUser.user_password);
+        const passwordMatch = await verify(existingUser.user_password,credentials.password);
         
         if(!passwordMatch){
           return null;

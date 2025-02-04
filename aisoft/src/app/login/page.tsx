@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 export default async function SignIn() {
     const session = await authSession();
+    
     if (session?.user) {
         if(session?.user.role === "admin"){
             return redirect("/admin");
@@ -11,7 +12,11 @@ export default async function SignIn() {
         else{
             return redirect("/");
         }
+    } 
+    else{
+        
     }
+
     return(
         <div>
             <SignInForm/>

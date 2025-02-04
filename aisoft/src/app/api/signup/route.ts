@@ -1,7 +1,8 @@
 
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server"
-import { hash } from 'bcrypt'
+// import { hash } from 'bcrypt'
+import { hash } from 'argon2'
 import * as z from 'zod';
 
 const userSchema = z.object({
@@ -36,7 +37,7 @@ export async function POST(req: Request){
             )
         }
 
-        const hashpassword = await hash(password,10)
+        const hashpassword = await hash(password)
         const newuser = await prisma.user.create({
           data:{
             user_name : username,
