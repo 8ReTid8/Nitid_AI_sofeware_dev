@@ -17,7 +17,7 @@ export default async function Home() {
   console.log(session);
   return (
     <div>
-      <Chart symbol="EURUSD" timeframe="D1" numBars={50} />
+      {/* <Chart symbol="EURUSD" timeframe="D1" numBars={50} /> */}
     </div>
   );
 }

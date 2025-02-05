@@ -5,16 +5,17 @@ import { on } from "events";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const FormSchema = z.object({
+    username: z.string().min(1, "Username is requried").max(100),
+    email: z.string().min(1,"Email is required").email('invalid email'),
+    password:z
+        .string()
+        .min(1,'password is required')
+        .min(8,'password must have than 8 characters'),
+})
+
 export default function SignUpForm() {
-    const FormSchema = z.object({
-        username: z.string().min(1, "Username is requried").max(100),
-        email: z.string().min(1,"Email is required").email('invalid email'),
-        password:z
-            .string()
-            .min(1,'password is required')
-            .min(8,'password must have than 8 characters'),
-        // confirmPassword: z.string().min(1, "Confirm password is required"),
-    })
+    
     // .refine((data) => data.password === data.confirmPassword, {
     //     path: ["confirmPassword"],
     //     message: "Passwords do not match",
@@ -60,7 +61,7 @@ export default function SignUpForm() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, email, password }),
+            body: JSON.stringify(validated.data),
         });
         if (response.ok) {
             router.push('/login');

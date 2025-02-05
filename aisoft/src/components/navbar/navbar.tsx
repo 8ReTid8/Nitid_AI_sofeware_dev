@@ -1,5 +1,4 @@
-import { authSession, authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { authSession } from "@/lib/auth";
 import Link from "next/link";
 import SignOut from "./signout";
 
