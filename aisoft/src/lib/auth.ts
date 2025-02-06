@@ -82,15 +82,6 @@ export const authOptions: NextAuthOptions = {
         }
       }
     },
-    // async signIn({ user }) {
-    //   revalidatePath("/");
-    //   if (user.role === "admin") {
-    //     return "/admin";
-    //   }
-    //   else{
-    //     return "/";
-    //   }
-    // }
   }
 }
 

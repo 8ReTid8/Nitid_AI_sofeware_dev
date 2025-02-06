@@ -1,5 +1,5 @@
 generator client {
-  provider      = "prisma-client-js"
+  provider = "prisma-client-js"
   // binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -9,11 +9,22 @@ datasource db {
 }
 
 model user {
-  user_id       Int    @id @unique @default(autoincrement())
-  user_name     String @unique @db.VarChar(100)
-  user_role     String @db.VarChar(50)
-  user_password String @db.VarChar(100)
-  user_email    String @unique @db.VarChar(100)
+  user_id       String    @id @unique @default(uuid())
+  user_name     String    @unique @db.VarChar(100)
+  user_role     String    @db.VarChar(50)
+  user_password String    @db.VarChar(100)
+  user_email    String    @unique @db.VarChar(100)
+  mt5_accounts  MT5_Acc[]
+}
+
+model MT5_Acc {
+  acc_id   String  @id @unique @default(uuid())
+  token    String  @unique @db.VarChar(100)
+  MT5_id   String  @db.VarChar(100)
+  status   String  @db.VarChar(50)
+  lot_size Decimal @db.Decimal
+  user     user    @relation(fields: [user_id], references: [user_id])
+  user_id  String  @db.VarChar(100)
 }
 
 model OHLC_data {
