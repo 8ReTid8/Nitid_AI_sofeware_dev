@@ -12,6 +12,5 @@ export default async function Admin() {
             <h1>Admin Page</h1>
             <ShowUser/>
         </div>
-        
     )
 }
