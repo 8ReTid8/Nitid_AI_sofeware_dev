@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { AddAcc } from "./addAcc";
+import { AddAcc } from "../../components/accounts/addAcc";
 
 export default function Accounts() {
     const session = useSession();

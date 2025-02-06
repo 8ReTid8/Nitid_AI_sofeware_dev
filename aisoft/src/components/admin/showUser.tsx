@@ -102,9 +102,9 @@ export async function ShowUser() {
                     <td className="py-3 px-4 text-gray-700">{user.user_email}</td>
                     <td className="py-3 px-4 text-gray-700">{user.user_id}</td>
                     <td className="py-3 px-4">
-                      {/* <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all">
-                        Report
-                      </button> */}
+                      <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all">
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}

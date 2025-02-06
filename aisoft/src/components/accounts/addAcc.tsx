@@ -1,9 +1,44 @@
+"use client";
+import { randomBytes } from "crypto";
 import { useState } from "react";
 
 export function AddAcc() {
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [token, setToken] = useState<string>("");
+    const [formData, setFormData] = useState({
+        mt5Id: "",
+        name: "",
+        currency: "",
+        model: "",
+        volume: "",
+    });
+
     const handleToggle = () => {
+        if (showModal) {
+            setToken("");
+            setFormData({
+                mt5Id: "",
+                name: "",
+                currency: "",
+                model: "",
+                volume: "",
+            });
+        }
         setShowModal((prev) => !prev)
+    };
+
+    const handleGenerateToken = () => {
+        try {
+            const newToken = randomBytes(16).toString('hex');
+            setToken(newToken);
+            console.log(newToken)
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({ ...formData, [e.target.id]: e.target.value });
     };
 
     return (
@@ -26,17 +61,21 @@ export function AddAcc() {
                             type="text"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="MT5 ID"
+                            value={formData.mt5Id}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm mb-1" htmlFor="name2">
+                        <label className="block text-sm mb-1" htmlFor="name">
                             Name
                         </label>
                         <input
-                            id="name2"
+                            id="name"
                             type="text"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Name"
+                            value={formData.name}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="mb-4">
@@ -48,12 +87,15 @@ export function AddAcc() {
                             type="text"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Token ID"
+                            value={token}
+                            onChange={(e)=>setToken(e.target.value)}
                         />
                     </div>
                     <div className="mb-4">
                         <button
                             type="button"
                             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                            onClick={handleGenerateToken}
                         >
                             Generate
                         </button>

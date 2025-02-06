@@ -8,8 +8,7 @@ export default async function Admin() {
         return redirect("/");
     }
     return (
-        <div>
-            <h1>Admin Page</h1>
+        <div className="pt-20 px-6">
             <ShowUser/>
         </div>
     )
