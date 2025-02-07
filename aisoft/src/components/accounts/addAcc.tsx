@@ -1,10 +1,15 @@
 "use client";
+import { authSession } from "@/lib/auth";
 import { randomBytes } from "crypto";
 import { useState } from "react";
 
 export function AddAcc() {
+    
     const [showModal, setShowModal] = useState<boolean>(false);
     const [token, setToken] = useState<string>("");
+    const availableCurrencies = ["EURUSD", "USDJPY"];
+    const [currency, setCurrency] = useState<string>("");
+    const [models, setModels] = useState<{ model_id: string, model_name: string }[]>([]);
     const [formData, setFormData] = useState({
         mt5Id: "",
         name: "",
@@ -16,6 +21,8 @@ export function AddAcc() {
     const handleToggle = () => {
         if (showModal) {
             setToken("");
+            setCurrency("");
+            setModels([]);
             setFormData({
                 mt5Id: "",
                 name: "",
@@ -37,8 +44,58 @@ export function AddAcc() {
         }
     };
 
+    const handleCurrencyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedCurrency = e.target.value;
+        setCurrency(selectedCurrency);
+        setFormData({ ...formData, currency: selectedCurrency, model: "" });
+
+        if (!selectedCurrency) {
+            setModels([]);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/getmodel?currency=${selectedCurrency}`);
+            const data = await response.json();
+            setModels(data); // Expecting an array of { model_id, model_name }
+            console.log(data)
+        } catch (error) {
+            console.error("Error fetching models:", error);
+            setModels([]);
+        }
+    };
+
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
+        console.log(formData)
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!formData.mt5Id || !formData.name || !currency || !formData.model || !formData.volume || !token) {
+            alert("Please fill all fields and generate a token.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/accounts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...formData, token }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert("Account created successfully!");
+                handleToggle();
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error creating account:", error);
+            alert("Failed to create account.");
+        }
     };
 
     return (
@@ -51,7 +108,7 @@ export function AddAcc() {
                     <h3 className="font-bold text-lg">New Account</h3>
                     <button className="absolute top-2 right-5 text-gray-500 text-[25px]" onClick={handleToggle}>x</button>
                 </div>
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <label className="block text-sm mb-1" htmlFor="mt5Id">
                             MT5 ID
@@ -88,7 +145,7 @@ export function AddAcc() {
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Token ID"
                             value={token}
-                            onChange={(e)=>setToken(e.target.value)}
+                            onChange={(e) => setToken(e.target.value)}
                         />
                     </div>
                     <div className="mb-4">
@@ -101,26 +158,36 @@ export function AddAcc() {
                         </button>
                     </div>
                     <div className="mb-4">
-                        <label className="block text-sm mb-1" htmlFor="currency">
-                            Currency
-                        </label>
-                        <input
+                        <label className="block text-sm mb-1" htmlFor="currency">Currency</label>
+                        <select
                             id="currency"
-                            type="text"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Currency"
-                        />
+                            value={currency}
+                            onChange={handleCurrencyChange}
+                        >
+                            <option value="">Select Currency</option>
+                            {availableCurrencies.map((cur) => (
+                                <option key={cur} value={cur}>{cur}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm mb-1" htmlFor="model">
                             Model
                         </label>
-                        <input
+
+                        <select
                             id="model"
-                            type="text"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Model"
-                        />
+                            value={formData.model}
+                            onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                            disabled={!currency || models.length === 0}
+                        >
+                            <option value="">Select Model</option>
+                            {models.map((model) => (
+                                <option key={model.model_id} value={model.model_id}>{model.model_name}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="mb-4">
                         <label className="block text-sm mb-1" htmlFor="volume">
@@ -131,6 +198,8 @@ export function AddAcc() {
                             type="text"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Volume"
+                            value={formData.volume}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="mb-4">
@@ -145,6 +214,7 @@ export function AddAcc() {
                         <button
                             type="submit"
                             className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800"
+                            // onChange={handleChange}
                         >
                             Create
                         </button>

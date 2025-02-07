@@ -17,14 +17,26 @@ model user {
   mt5_accounts  MT5_Acc[]
 }
 
+model PPO_model {
+  model_id       String    @id @unique @default(uuid())
+  model_name     String    @unique @db.VarChar(50)
+  model_path     String    @db.VarChar(255)
+  model_currency String    @db.VarChar(50)
+  model_version  String    @db.VarChar(50)
+  mt5_accounts   MT5_Acc[]
+}
+
 model MT5_Acc {
-  acc_id   String  @id @unique @default(uuid())
-  token    String  @unique @db.VarChar(100)
-  MT5_id   String  @db.VarChar(100)
-  status   String  @db.VarChar(50)
-  lot_size Decimal @db.Decimal
-  user     user    @relation(fields: [user_id], references: [user_id])
-  user_id  String  @db.VarChar(100)
+  acc_id   String    @id @unique @default(uuid())
+  acc_name String    @db.VarChar(100)
+  token    String    @unique @db.VarChar(100)
+  MT5_id   String    @db.VarChar(100)
+  status   String    @db.VarChar(50)
+  lot_size Decimal   @db.Decimal
+  user     user      @relation(fields: [userid], references: [user_id])
+  userid   String    @db.VarChar(100)
+  model    PPO_model @relation(fields: [modelid], references: [model_id])
+  modelid  String    @db.VarChar(100)
 }
 
 model OHLC_data {
