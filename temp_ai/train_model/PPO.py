@@ -12,7 +12,7 @@ class ForexTradingEnv(gym.Env):
         self.initial_balance = initial_balance
         self.max_position_size = max_position_size
         self.window_size = window_size
-
+        self.past_profit = 0
         # Define action space: [0: Hold, 1: Buy, 2: Sell, 3: Close Position]
         self.action_space = spaces.Discrete(3)
 
@@ -49,11 +49,22 @@ class ForexTradingEnv(gym.Env):
                 trade["hold"] += 1
                 
         if action == 0: # Hold
-            if len(self.trades) == 0:
-                reward = -1
-            else :
-                reward = 0.01
-
+            # if len(self.trades) == 0:
+            #     reward = -1
+            # else :
+            #     reward = 0.01
+            if self.trades:  
+                current_price = self.data.iloc[self.current_step]["CLOSE"]
+                unrealized_profits = [
+                    trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
+                    else trade["size"] * (trade["entry_price"] - current_price)
+                    for trade in self.trades
+                ]
+                current_profit = sum(unrealized_profits)
+                reward = current_profit - self.past_profit
+                self.past_profit = current_profit 
+            else:
+                reward = -0.5
         elif action == 1:  # Buy
             # if len(self.trades) < 5:
             #     reward = self.open_position("buy", size)
@@ -179,8 +190,8 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(1000):
-    # while True:
+    # for _ in range(1000):
+    while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()

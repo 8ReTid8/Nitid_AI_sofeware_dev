@@ -2,9 +2,10 @@
 import { authSession } from "@/lib/auth";
 import { randomBytes } from "crypto";
 import { useState } from "react";
+import { useRouter } from 'next/navigation'
 
 export function AddAcc() {
-    
+    const router = useRouter()
     const [showModal, setShowModal] = useState<boolean>(false);
     const [token, setToken] = useState<string>("");
     const availableCurrencies = ["EURUSD", "USDJPY"];
@@ -32,6 +33,7 @@ export function AddAcc() {
             });
         }
         setShowModal((prev) => !prev)
+
     };
 
     const handleGenerateToken = () => {
@@ -67,8 +69,24 @@ export function AddAcc() {
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.id]: e.target.value });
-        console.log(formData)
+        // setFormData({ ...formData, [e.target.id]: e.target.value });
+        // console.log(formData)
+        const { id, value } = e.target;
+
+        if (id === "volume") {
+            // Convert the input value to a number
+            const numValue = parseFloat(value);
+
+            // Check if the value is a number and within the specified range
+            if (numValue >= 0.01 && numValue <= 1) {
+                setFormData({ ...formData, [id]: value });
+            } else {
+                // Optionally, you can alert or show a message to the user
+                alert("Please enter a volume between 0.01 and 1.");
+            }
+        } else {
+            setFormData({ ...formData, [id]: value });
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +107,8 @@ export function AddAcc() {
             if (response.ok) {
                 alert("Account created successfully!");
                 handleToggle();
+                router.refresh()
+
             } else {
                 alert("Error: " + data.error);
             }
@@ -96,6 +116,7 @@ export function AddAcc() {
             console.error("Error creating account:", error);
             alert("Failed to create account.");
         }
+
     };
 
     return (
@@ -195,11 +216,14 @@ export function AddAcc() {
                         </label>
                         <input
                             id="volume"
-                            type="text"
+                            type="number"
                             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Volume"
                             value={formData.volume}
                             onChange={handleChange}
+                            min="0.01"      // Minimum value
+                            max="1"         // Maximum value
+                            step="0.01"
                         />
                     </div>
                     <div className="mb-4">
@@ -214,7 +238,7 @@ export function AddAcc() {
                         <button
                             type="submit"
                             className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800"
-                            // onChange={handleChange}
+                        // onChange={handleChange}
                         >
                             Create
                         </button>

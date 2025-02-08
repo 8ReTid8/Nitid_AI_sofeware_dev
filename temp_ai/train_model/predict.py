@@ -257,7 +257,8 @@ if __name__ == "__main__":
     login = 89468246 # Your login
     password = '-4YkNdCm'  # Your password
     server = 'MetaQuotes-Demo'  # Correct server
-
+    # 	nsyCSFXe
+    
     login_result = mt5.login(login, password, server)
     if login_result:
         print("Login successful!")

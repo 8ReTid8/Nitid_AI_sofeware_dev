@@ -29,13 +29,6 @@ export async function POST(req: Request) {
                 lot_size: volume, // Ensure lot_size is a Float
                 modelid: model,
                 userid: userid?.user_id || "null" ,
-                // acc_name: "w",
-                // MT5_id: "w",
-                // token: "w",
-                // status: "off",
-                // lot_size: "w", // Ensure lot_size is a Float
-                // modelid: "04afd52c-e4d7-4b34-b067-9d8672ab24a2",
-                // userid: session?.user.id || "null"
             },
         });
 
