@@ -25,7 +25,7 @@ export async function POST(req: Request) {
                 acc_name: name,
                 MT5_id: mt5Id,
                 token: token,
-                status: "off",
+                status: "disconnect",
                 lot_size: volume, // Ensure lot_size is a Float
                 modelid: model,
                 userid: userid?.user_id || "null" ,
