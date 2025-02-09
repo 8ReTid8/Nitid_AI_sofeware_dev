@@ -54,22 +54,19 @@ class ForexTradingEnv(gym.Env):
             # else :
             #     reward = 0.01
             if self.trades:  
-                current_price = self.data.iloc[self.current_step]["CLOSE"]
-                unrealized_profits = [
-                    trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
-                    else trade["size"] * (trade["entry_price"] - current_price)
-                    for trade in self.trades
-                ]
-                current_profit = sum(unrealized_profits)
-                reward = current_profit - self.past_profit
-                self.past_profit = current_profit 
+                c_profit = self.cal_profit()
+                reward = c_profit - self.past_profit
+                self.past_profit = c_profit 
             else:
                 reward = -0.5
         elif action == 1:  # Buy
+            reward = self.open_position("buy", size)
+            
             # if len(self.trades) < 5:
             #     reward = self.open_position("buy", size)
             # else:
             #     reward = -1
+            
             profit = 0
             for i in range(len(self.trades) - 1, -1, -1):
                 if self.trades[i]["type"] == "sell":
@@ -79,10 +76,13 @@ class ForexTradingEnv(gym.Env):
             self.open_position("buy", size)                    
                 
         elif action == 2:  # Sell
+            #  reward = self.open_position("sell", size)
+                
             # if len(self.trades) < 5:
             #     reward = self.open_position("sell", size)
             # else:
             #     reward = -1
+                
             profit = 0
             for i in range(len(self.trades) - 1, -1, -1):
                 if self.trades[i]["type"] == "buy":
@@ -93,17 +93,25 @@ class ForexTradingEnv(gym.Env):
             self.open_position("sell", size)  
   
             
-        # elif action == 3:  # Close Position
-        #     if self.trades:  
-        #         current_price = self.data.iloc[self.current_step]["CLOSE"]
-        #         unrealized_profits = [
-        #             trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
-        #             else trade["size"] * (trade["entry_price"] - current_price)
-        #             for trade in self.trades
-        #         ]
-        #         reward = self.close_position(unrealized_profits,size)
-        #     else:
-        #         reward = -2
+        elif action == 3:  # Close Position
+            # if self.trades:  
+            #     current_price = self.data.iloc[self.current_step]["CLOSE"]
+            #     unrealized_profits = [
+            #         trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
+            #         else trade["size"] * (trade["entry_price"] - current_price)
+            #         for trade in self.trades
+            #     ]
+            #     reward = self.close_position(unrealized_profits,size)
+            # else:
+            #     reward = -2
+            profit = 0
+            if self.trades:
+                for i in range(len(self.trades) - 1, -1, -1):
+                    profit += self.cal_balance(i)
+                self.profit += profit        
+                reward = profit
+            else:
+                reward = -1
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -112,7 +120,18 @@ class ForexTradingEnv(gym.Env):
 
         next_state = self._get_state()
         return next_state, reward, self.done, {}
-
+    
+    def cal_profit(self):
+        current_price = self.data.iloc[self.current_step]["CLOSE"]
+        unrealized_profits = [
+            trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
+            else trade["size"] * (trade["entry_price"] - current_price)
+            for trade in self.trades
+        ]
+        current_profit = sum(unrealized_profits)
+        return current_profit
+        
+    
     def open_position(self, action_type, size):
         price = self.data.iloc[self.current_step]["CLOSE"] 
         cost = size * price
@@ -125,19 +144,19 @@ class ForexTradingEnv(gym.Env):
         return 0.1
        
      
-    # def close_position(self, unknownprofit ,size):
-        # temp = sum(unknownprofit)
-        # profit = 0
-        # if(temp<5):
-        #     for i in range(len(unknownprofit) - 1, -1, -1):
-        #         if unknownprofit[i] > 0 or self.trades[i]["hold"] > 168:
-        #             profit += self.cal_balance(i)
-        # else:
-        #     for i in range(len(unknownprofit) - 1, -1, -1):
-        #             profit += self.cal_balance(i)
+    def close_position(self, unknownprofit ,size):
+        temp = sum(unknownprofit)
+        profit = 0
+        if(temp<5):
+            for i in range(len(unknownprofit) - 1, -1, -1):
+                if unknownprofit[i] > 0 or self.trades[i]["hold"] > 168:
+                    profit += self.cal_balance(i)
+        else:
+            for i in range(len(unknownprofit) - 1, -1, -1):
+                    profit += self.cal_balance(i)
                 
-    #     self.profit += profit
-    #     return(profit)
+        self.profit += profit
+        return(profit)
     
     
     def cal_balance(self,index):
@@ -190,8 +209,8 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    # for _ in range(1000):
-    while True:
+    for _ in range(1000):
+    # while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
