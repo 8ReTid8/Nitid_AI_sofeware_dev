@@ -60,20 +60,29 @@ class ForexTradingEnv(gym.Env):
             else:
                 reward = -0.5
         elif action == 1:  # Buy
-            reward = self.open_position("buy", size)
+            # reward = self.open_position("buy", size)
             
             # if len(self.trades) < 5:
             #     reward = self.open_position("buy", size)
             # else:
             #     reward = -1
             
+            # profit = 0
+            # for i in range(len(self.trades) - 1, -1, -1):
+            #     if self.trades[i]["type"] == "sell":
+            #         profit = self.cal_balance(i)
+            # self.profit += profit
+            # reward = profit
+            # self.open_position("buy", size)
+            
             profit = 0
-            for i in range(len(self.trades) - 1, -1, -1):
-                if self.trades[i]["type"] == "sell":
-                    profit = self.cal_balance(i)
+            close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
+            for i in sorted(close_indices, reverse=True):
+                profit += self.cal_balance(i)
+                
             self.profit += profit
             reward = profit
-            self.open_position("buy", size)                    
+            self.open_position("buy", size)                     
                 
         elif action == 2:  # Sell
             #  reward = self.open_position("sell", size)
@@ -83,17 +92,27 @@ class ForexTradingEnv(gym.Env):
             # else:
             #     reward = -1
                 
-            profit = 0
-            for i in range(len(self.trades) - 1, -1, -1):
-                if self.trades[i]["type"] == "buy":
-                    profit += self.cal_balance(i)
+            # profit = 0
+            # for i in range(len(self.trades) - 1, -1, -1):
+            #     if self.trades[i]["type"] == "buy":
+            #         profit += self.cal_balance(i)
             
-            self.profit += profit        
+            # self.profit += profit        
+            # reward = profit
+            # self.open_position("sell", size)  
+            
+            profit = 0
+            close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
+            
+            for i in sorted(close_indices, reverse=True):
+                profit += self.cal_balance(i)
+
+            self.profit += profit
             reward = profit
-            self.open_position("sell", size)  
+            self.open_position("sell", size)
   
             
-        elif action == 3:  # Close Position
+        # elif action == 3:  # Close Position
             # if self.trades:  
             #     current_price = self.data.iloc[self.current_step]["CLOSE"]
             #     unrealized_profits = [
@@ -104,14 +123,15 @@ class ForexTradingEnv(gym.Env):
             #     reward = self.close_position(unrealized_profits,size)
             # else:
             #     reward = -2
-            profit = 0
-            if self.trades:
-                for i in range(len(self.trades) - 1, -1, -1):
-                    profit += self.cal_balance(i)
-                self.profit += profit        
-                reward = profit
-            else:
-                reward = -1
+            
+            # profit = 0
+            # if self.trades:
+            #     for i in range(len(self.trades) - 1, -1, -1):
+            #         profit += self.cal_balance(i)
+            #     self.profit += profit        
+            #     reward = profit
+            # else:
+            #     reward = -1
 
         # Update state and check if the episode is done
         self.current_step += 1
@@ -165,10 +185,9 @@ class ForexTradingEnv(gym.Env):
         Tprofit = 0
         if trade["type"] == "buy":  # Closing a long position
             Tprofit = trade["size"] * (current_price - trade["entry_price"])
-            self.balance += ((trade["entry_price"]*trade["size"]) + Tprofit)
         elif trade["type"] == "sell":  # Closing a short position
             Tprofit = trade["size"] * (trade["entry_price"] - current_price)
-            self.balance += ((trade["entry_price"]*trade["size"]) + Tprofit)
+        self.balance += ((trade["entry_price"]*trade["size"]) + Tprofit)
         return Tprofit
         
 
