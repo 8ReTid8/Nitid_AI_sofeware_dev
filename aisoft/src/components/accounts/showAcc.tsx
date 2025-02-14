@@ -10,6 +10,7 @@ export default function ShowAccounts() {
         const fetchAccounts = async () => {
             try {
                 const response = await fetch("http://localhost:3000/api/getaccount");
+                // console.log(response.balance)
                 if (!response.ok) {
                     throw new Error(`Error: ${response.status}`);
                 }
@@ -36,8 +37,13 @@ export default function ShowAccounts() {
                     <div key={account.acc_id} className="border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
                         <div className="text-xl font-semibold text-gray-800 mb-2">{account.acc_name}</div>
                         <div className={`text-sm font-medium ${account.status === 'connect' ? 'text-green-600' : 'text-red-600'}`}>Status: {account.status}</div>
-                        <div className={`text-sm font-medium `}>Balance: {account.balance}</div>
-                        <Link href={`/account/${account.acc_id}`}>
+                        {/* <div className={`text-sm font-medium `}>Balance: {account.balance}</div> */}
+                        {account.status === 'connect' && (
+                            <div className="text-sm font-medium text-gray-700">
+                                Balance: {account.balance || "N/A"}
+                            </div>
+                        )}
+                        <Link href={`/accounts/${account.acc_id}`}>
                             <button className="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded">View</button>
                         </Link>
                     </div>

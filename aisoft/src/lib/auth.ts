@@ -4,14 +4,6 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 // import { compare } from "bcrypt";
 import { verify } from "argon2";
-import { get } from "http";
-import { revalidatePath } from "next/cache";
-// interface CustomUser extends User {
-//   id: string;
-//   email: string;
-//   name: string;
-//   role: string;
-// }
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
