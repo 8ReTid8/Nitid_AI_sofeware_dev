@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request, { params }: { params: { account_id: string } }) {
     try {
+        const {account_id} = await params
         const account = await prisma.mT5_Acc.findFirst({
-            where: { acc_id: params.account_id },
+            where: { acc_id: account_id },
         });
 
         if (!account) {
