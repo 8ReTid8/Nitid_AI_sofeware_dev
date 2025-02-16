@@ -15,6 +15,7 @@ model user {
   user_password String    @db.VarChar(100)
   user_email    String    @unique @db.VarChar(100)
   mt5_accounts  MT5_Acc[]
+  bill          bill[]
 }
 
 model PPO_model {
@@ -47,4 +48,15 @@ model OHLC_data {
   high      Decimal  @db.Decimal
   low       Decimal  @db.Decimal
   close     Decimal  @db.Decimal
+}
+
+model bill {
+  bill_id     String   @id @unique @default(uuid())
+  bill_price  Decimal  @db.Decimal()
+  bill_status String   @db.VarChar(50)
+  created_at  DateTime @default(now())
+  from_bot    String   @db.VarChar(50)
+  due_date    DateTime
+  user        user     @relation(fields: [userid], references: [user_id])
+  userid      String   @db.VarChar(100)
 }
