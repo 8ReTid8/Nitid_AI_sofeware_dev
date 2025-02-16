@@ -4,22 +4,22 @@ import { redirect } from "next/navigation";
 
 export default async function SignIn() {
     const session = await authSession();
-    
+
     if (session?.user) {
-        if(session?.user.role === "admin"){
+        if (session?.user.role === "admin") {
             return redirect("/admin");
         }
-        else{
+        else {
             return redirect("/");
         }
-    } 
-    else{
-        
+    }
+    else {
+
     }
 
-    return(
+    return (
         <div>
-            <SignInForm/>
+            <SignInForm />
         </div>
     )
 }
