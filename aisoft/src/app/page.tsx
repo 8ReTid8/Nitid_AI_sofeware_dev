@@ -1,5 +1,5 @@
-import Chart from "@/components/forexgraph/dashchart";
 import { authSession } from "@/lib/auth";
+
 import { redirect } from "next/navigation";
 
 // export default function Home() {
@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 //     </div>
 //   );
 // }
+
 export default async function Home() {
   const session = await authSession();
   if (session?.user.role === "admin") {

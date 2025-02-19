@@ -6,7 +6,7 @@ export default function CheckOutpage({ amount }: { amount: number }) {
     const stripe = useStripe();
     const element = useElements();
 
-    const [error, setError] = useState<string>()
+    const [errorMessage, setError] = useState<string>()
     const [clientSecret, setClientSecret] = useState("");
     const [loading, setLoading] = useState(false);
     
@@ -23,12 +23,14 @@ export default function CheckOutpage({ amount }: { amount: number }) {
     }, [amount])
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-
+        event.preventDefault();
+        setLoading(true)
     }
 
     return (
         <form onSubmit={handleSubmit} className="bg-white p-2 rounded-md">
             {clientSecret && <PaymentElement />}
+            {errorMessage&&<div>{errorMessage}</div>}
         </form>
     )
 }
