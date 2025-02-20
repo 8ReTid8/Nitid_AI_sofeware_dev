@@ -21,7 +21,7 @@ export default function Bot() {
                         currency: "usd"
                     }}
                 >
-                    <CheckOutpage amount={50 * 100} />
+                    <CheckOutpage amount={50} />
                 </Elements>
             </div>
         </div>
