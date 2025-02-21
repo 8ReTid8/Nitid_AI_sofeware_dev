@@ -7,7 +7,7 @@ export default function Payment() {
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-5xl font-bold ">ACCOUNT</h1>
                 </div>
-                <Showbill/>
+                <Showbill />
             </main>
         </div>
     )

@@ -1,10 +1,10 @@
 'use client';
-
 import { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import CheckOutpage from "@/components/payment/checkout";
+import Billhistory from "./billhistory";
 
 if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
     throw new Error("Cannot find Stripe public key");
@@ -70,7 +70,7 @@ export default function PaymentPage() {
                 {/* Current Month Card */}
                 <div className="card bg-base-100 shadow-xl">
                     <div className="card-body">
-                        <h2 className="card-title text-2xl font-bold">Monthly Payment</h2>
+                        <h2 className="card-title text-2xl font-bold">BILLS</h2>
                         <div className="divider"></div>
 
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -125,7 +125,8 @@ export default function PaymentPage() {
                 </div>
 
                 {/* Payment History Card */}
-                <div className="card bg-base-100 shadow-xl">
+                <Billhistory/>
+                {/* <div className="card bg-base-100 shadow-xl">
                     <div className="card-body">
                         <h2 className="card-title text-2xl font-bold">Payment History</h2>
                         <div className="divider"></div>
@@ -154,7 +155,7 @@ export default function PaymentPage() {
                             </table>
                         </div>
                     </div>
-                </div>
+                </div>  */}
             </div>
         </div>
     );
