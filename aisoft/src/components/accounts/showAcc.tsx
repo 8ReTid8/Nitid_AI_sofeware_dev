@@ -22,7 +22,6 @@ export default function ShowAccounts() {
                 setLoading(false);
             }
         };
-
         fetchAccounts();
     }, [session]);
 

@@ -11,7 +11,6 @@ export default function Accounts() {
             <main className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-5xl font-bold ">ACCOUNT</h1>
-                    {/* <button className="bg-black text-white rounded-full px-4 py-2">add</button> */}
                     <AddAcc/>
                 </div>
                 <ShowAccounts/>
