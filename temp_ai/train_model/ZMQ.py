@@ -9,7 +9,9 @@ def main():
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:5555")
     
-    model_path = "./temp_ai/ppo_forex_trader"  # Path to your trained model
+    # model_path = "./temp_ai/ppo_forex_trader"  # Path to your trained model
+    model_path = "./temp_ai/CUP"  # Path to your trained model
+    
     model = PPO.load(model_path)
     
     print("Python Server: Waiting for messages...")
