@@ -1,69 +1,3 @@
-// import { GetUser } from "../api/admin/getUser"
-
-// export async function ShowUser() {
-//   const users = await GetUser();
-//   return (
-//     <div className="mx-auto w-2/3 bg-base-300">
-//       <div className="mx-auto w-full bg-base-100 shadow-lg mt-3">
-//         <div className="flex justify-between font-semibold p-5 border-b-2">
-//           <span>User Manage</span>
-//         </div>
-//         <div className="p-5">
-//           <div className="overflow-x-auto ">
-//             <table className="table">
-//               {/* head */}
-//               <thead>
-//                 <tr>
-//                   <th></th>
-//                   <th>Name</th>
-//                   <th>Email</th>
-//                   <th>UserID</th>
-//                   <th>Report</th>
-//                   <th></th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {users?.map((user, index) => (
-//                   <tr key={index}>
-//                     <th>
-//                       <label>
-
-//                       </label>
-//                     </th>
-//                     <td>
-//                       <div className="flex items-center gap-3">
-//                         <div>
-//                           <div className="font-bold">{user.user_name}</div>
-//                         </div>
-//                       </div>
-//                     </td>
-//                     <td>{user.user_email}</td>
-//                     <td>{user.user_id}</td>
-//                     <th>
-
-//                     </th>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//               {/* foot */}
-//               <tfoot>
-//                 <tr>
-//                   <th></th>
-//                   <th>Name</th>
-//                   <th>Email</th>
-//                   <th>UserID</th>
-//                   <th>Report</th>
-//                   <th></th>
-//                 </tr>
-//               </tfoot>
-
-//             </table>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
 import { GetUser } from "../../app/api/admin/getUser";
 
 export async function ShowUser() {
@@ -102,9 +36,11 @@ export async function ShowUser() {
                     <td className="py-3 px-4 text-gray-700">{user.user_email}</td>
                     <td className="py-3 px-4 text-gray-700">{user.user_id}</td>
                     <td className="py-3 px-4">
-                      <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all">
-                        Edit
-                      </button>
+                      <a href={`/admin/${user.user_id}`}>
+                        <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all">
+                          Edit
+                        </button>
+                      </a>
                     </td>
                   </tr>
                 ))}
