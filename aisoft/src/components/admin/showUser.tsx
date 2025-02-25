@@ -20,7 +20,8 @@ export async function ShowUser() {
                   <th className="py-3 px-4 text-gray-600">Name</th>
                   <th className="py-3 px-4 text-gray-600">Email</th>
                   <th className="py-3 px-4 text-gray-600">User ID</th>
-                  <th className="py-3 px-4 text-gray-600">Actions</th>
+                  <th className="py-3 px-4 text-gray-600">Role</th>
+                  <th className="py-3 px-4 text-gray-600"></th>
                 </tr>
               </thead>
 
@@ -35,6 +36,7 @@ export async function ShowUser() {
                     <td className="py-3 px-4 font-medium text-gray-800">{user.user_name}</td>
                     <td className="py-3 px-4 text-gray-700">{user.user_email}</td>
                     <td className="py-3 px-4 text-gray-700">{user.user_id}</td>
+                    <td className="py-3 px-4 text-gray-700">{user.user_role}</td>
                     <td className="py-3 px-4">
                       <a href={`/admin/${user.user_id}`}>
                         <button className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-all">

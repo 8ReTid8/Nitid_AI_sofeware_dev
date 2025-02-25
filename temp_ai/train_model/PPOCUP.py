@@ -70,12 +70,14 @@ class ForexTradingEnv(gym.Env):
             # reward = profit
             # self.open_position("buy", size)
             buy_profit, buy_count = self.cal_profit_buy()
-            # sell_profit, sell_count = self.cal_profit_sell()
+            sell_profit, sell_count = self.cal_profit_sell()
             
-            if(buy_profit<0):
-                self.open_position("buy", size)
+            # if(sell_count==1):
+            # if(buy_profit<0):
+                # self.open_position("buy", size)
                 
-            elif(buy_count>1): 
+            # elif(buy_count>1): 
+            if(buy_profit>0 and buy_count>1):
                 profit = 0
                 close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
                 for i in sorted(close_indices, reverse=True):
@@ -84,7 +86,11 @@ class ForexTradingEnv(gym.Env):
                 self.profit += profit
                 reward = profit
                 self.open_position("buy", size)
-                
+            
+            elif(sell_count==1):
+                self.open_position("buy", size)
+
+    
                 
                 
                 
@@ -99,11 +105,14 @@ class ForexTradingEnv(gym.Env):
             # reward = profit
             # self.open_position("sell", size)
             sell_profit, sell_count = self.cal_profit_sell()
-            # buy_profit, buy_count = self.cal_profit_buy()
+            buy_profit, buy_count = self.cal_profit_buy()
             
-            if(sell_profit<0):
-                self.open_position("sell", size)
-            elif(sell_count>1):
+            # if(buy_count==1):
+            # if(sell_profit<0):
+            #     self.open_position("sell", size)
+            
+            # elif(sell_count>1):
+            if(sell_profit>0 and sell_count>1):
                 profit = 0
                 close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
                 for i in sorted(close_indices, reverse=True):
@@ -113,6 +122,8 @@ class ForexTradingEnv(gym.Env):
                 reward = profit
                 self.open_position("sell", size)
                 
+            elif(buy_count==1):
+                self.open_position("sell", size)
   
             
         # elif action == 3:  # Close Position
