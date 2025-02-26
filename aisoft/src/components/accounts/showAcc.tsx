@@ -16,7 +16,7 @@ export default function ShowAccounts() {
                 }
                 const data = await response.json();
                 setAccounts(data);
-            } catch (err:any) {
+            } catch (err: any) {
                 setError(err.message || "Failed to fetch accounts.");
             } finally {
                 setLoading(false);
@@ -65,29 +65,28 @@ export default function ShowAccounts() {
                         <div key={account.acc_id} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
                             <div className="card-body">
                                 <h2 className="card-title text-xl">{account.acc_name}</h2>
-                                
+
                                 <div className="flex flex-col gap-2 my-2">
                                     <div className="flex items-center gap-2">
-                                        <div className={`badge badge-lg ${
-                                            account.status === 'connect' ? 'badge-success' : 'badge-error'
-                                        }`}>
+                                        <div className={`badge badge-lg ${account.status === 'connect' ? 'badge-success' : 'badge-error'
+                                            }`}>
                                             {account.status}
                                         </div>
                                     </div>
-                                    
-                                    {account.status === 'connect' && (
-                                        <div className="flex items-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-base-content/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span className="font-medium">
-                                                {new Intl.NumberFormat('en-US', { 
-                                                    style: 'currency', 
-                                                    currency: 'USD' 
-                                                }).format(account.balance || 0)}
-                                            </span>
-                                        </div>
-                                    )}
+
+                                    {/* {account.status === 'connect' && ( */}
+                                    <div className="flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-base-content/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="font-medium">
+                                            {new Intl.NumberFormat('en-US', {
+                                                style: 'currency',
+                                                currency: 'USD'
+                                            }).format(account.balance || 0)}
+                                        </span>
+                                    </div>
+                                    {/* )} */}
                                 </div>
 
                                 <div className="card-actions justify-end mt-2">

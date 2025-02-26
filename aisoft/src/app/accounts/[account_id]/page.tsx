@@ -1,12 +1,23 @@
 "use client";
+import DelAccount from "@/components/accounts/deleteAccount";
 import { useEffect, useState } from "react";
+
+type PPOModel = {
+  model_id: string;
+  model_name: string;
+  model_version: string;
+};
 
 type AccountDetails = {
   acc_id: string;
   acc_name: string;
+  MT5_id: string
+  token: string
+  lot_size: string
   status: string;
   balance?: number;
   transactions?: { time: string; price: string; profitLoss: string }[];
+  model?: PPOModel;
 };
 
 async function getAccountDetails(account_id: string) {
@@ -68,7 +79,7 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
     );
   }
 
-  const totalProfitLoss = account.transactions?.reduce((sum, transaction) => 
+  const totalProfitLoss = account.transactions?.reduce((sum, transaction) =>
     sum + parseFloat(transaction.profitLoss), 0) || 0;
 
   return (
@@ -80,12 +91,12 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
           <div className="flex gap-2">
             <button className="btn btn-ghost btn-circle">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
               </svg>
             </button>
-            <a href="/account" className="btn btn-ghost btn-circle">
+            <a href="/accounts" className="btn btn-ghost btn-circle">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
             </a>
           </div>
@@ -97,28 +108,31 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
             <div className="card-body">
               <h2 className="card-title text-base-content/60 text-sm">Current Balance</h2>
               <p className="text-2xl font-bold">
-                {account.status === "connect" 
+                {account.status === "connect"
                   ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
-                      .format(account.balance || 0)
+                    .format(account.balance || 0)
                   : "N/A"}
               </p>
             </div>
           </div>
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-base-content/60 text-sm">Total Profit/Loss</h2>
-              <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-success' : 'text-error'}`}>
+              <h2 className="card-title text-base-content/60 text-sm">Model</h2>
+              {/* <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-success' : 'text-error'}`}>
                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
                   .format(totalProfitLoss)}
+              </p> */}
+              <p className="text-2xl font-bold">
+                {account.model ? account.model.model_name : "N/A"}
               </p>
             </div>
           </div>
         </div>
 
         {/* Transactions Table */}
-        <div className="card bg-base-100 shadow-xl">
+        {/* <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title">Transaction History</h2>
+            <h2 className="card-title">Information</h2>
             <div className="overflow-x-auto">
               <table className="table table-zebra">
                 <thead>
@@ -161,24 +175,63 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
               </table>
             </div>
           </div>
+        </div> */}
+
+        {/* Improved Account Information Card */}
+        <div className="card bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title">Account Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <div className="bg-base-200 rounded-lg p-4">
+                <h3 className="text-base-content/60 text-sm mb-1">Account ID</h3>
+                <p className="font-semibold text-lg break-all">{account.acc_id}</p>
+              </div>
+              <div className="bg-base-200 rounded-lg p-4">
+                <h3 className="text-base-content/60 text-sm mb-1">MT5 ID</h3>
+                <p className="font-semibold text-lg">{account.MT5_id}</p>
+              </div>
+              <div className="bg-base-200 rounded-lg p-4">
+                <h3 className="text-base-content/60 text-sm mb-1">Token</h3>
+                <div className="flex items-center gap-2">
+                  <p className="font-mono bg-base-300 p-1 rounded text-sm overflow-auto max-w-full">
+                    {account.token}
+                  </p>
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => { navigator.clipboard.writeText(account.token); /* Add toast notification here */ }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div className="bg-base-200 rounded-lg p-4">
+                <h3 className="text-base-content/60 text-sm mb-1">Lot Size</h3>
+                <p className="font-semibold text-lg">{account.lot_size}</p>
+              </div>
+              <div className="bg-base-200 rounded-lg p-4 md:col-span-2">
+                <h3 className="text-base-content/60 text-sm mb-1">Connection Status</h3>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${account.status === "connect" ? "bg-success" : "bg-error"}`}></span>
+                  <p className="font-semibold">{account.status === "connect" ? "Connected" : "Disconnected"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex gap-4">
           <button className="btn btn-primary gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M10 15l5-5"/>
-              <path d="M9 9h6v6"/>
+              <circle cx="12" cy="12" r="10" />
+              <path d="M10 15l5-5" />
+              <path d="M9 9h6v6" />
             </svg>
             Stop
           </button>
-          <button className="btn btn-error gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-            </svg>
-            Delete
-          </button>
+          {accountId && <DelAccount AccId={accountId} />}
         </div>
       </div>
     </div>

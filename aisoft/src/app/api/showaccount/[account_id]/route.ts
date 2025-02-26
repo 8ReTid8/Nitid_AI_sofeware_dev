@@ -6,6 +6,9 @@ export async function GET(req: Request, { params }: { params: { account_id: stri
         const {account_id} = await params
         const account = await prisma.mT5_Acc.findFirst({
             where: { acc_id: account_id },
+            include: {
+                model: true,
+            },
         });
 
         if (!account) {
