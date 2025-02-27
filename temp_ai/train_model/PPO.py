@@ -44,9 +44,9 @@ class ForexTradingEnv(gym.Env):
     def step(self, action):
         reward = 0
         size = 10000
-        if len(self.trades) > 0:
-            for trade in self.trades:
-                trade["hold"] += 1
+        # if len(self.trades) > 0:
+        #     for trade in self.trades:
+        #         trade["hold"] += 1
                 
         if action == 0: # Hold
             # if len(self.trades) == 0:
@@ -58,7 +58,8 @@ class ForexTradingEnv(gym.Env):
                 reward = c_profit - self.past_profit
                 self.past_profit = c_profit 
             else:
-                reward = -0.5
+                reward = -1
+                
         elif action == 1:  # Buy
             # reward = self.open_position("buy", size)
             
@@ -67,13 +68,6 @@ class ForexTradingEnv(gym.Env):
             # else:
             #     reward = -1
             
-            # profit = 0
-            # for i in range(len(self.trades) - 1, -1, -1):
-            #     if self.trades[i]["type"] == "sell":
-            #         profit = self.cal_balance(i)
-            # self.profit += profit
-            # reward = profit
-            # self.open_position("buy", size)
             
             profit = 0
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
@@ -91,15 +85,7 @@ class ForexTradingEnv(gym.Env):
             #     reward = self.open_position("sell", size)
             # else:
             #     reward = -1
-                
-            # profit = 0
-            # for i in range(len(self.trades) - 1, -1, -1):
-            #     if self.trades[i]["type"] == "buy":
-            #         profit += self.cal_balance(i)
-            
-            # self.profit += profit        
-            # reward = profit
-            # self.open_position("sell", size)  
+                 
             
             profit = 0
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
@@ -154,13 +140,13 @@ class ForexTradingEnv(gym.Env):
     
     def open_position(self, action_type, size):
         price = self.data.iloc[self.current_step]["CLOSE"] 
-        cost = size * price
-        if self.balance >= cost:  # Check if there's enough balance
-            self.balance -= cost
-            if action_type == "buy":
-                self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
-            else:
-                self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})
+        # cost = size * price
+        # if self.balance >= cost:  # Check if there's enough balance
+            # self.balance -= cost
+        if action_type == "buy":
+            self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
+        else:
+            self.trades.append({"type": "sell", "size": size, "entry_price": price,"hold": 0})
         return 0.1
        
      
@@ -187,7 +173,9 @@ class ForexTradingEnv(gym.Env):
             Tprofit = trade["size"] * (current_price - trade["entry_price"])
         elif trade["type"] == "sell":  # Closing a short position
             Tprofit = trade["size"] * (trade["entry_price"] - current_price)
-        self.balance += ((trade["entry_price"]*trade["size"]) + Tprofit)
+            
+        # self.balance += ((trade["entry_price"]*trade["size"]) + Tprofit)
+        self.balance += Tprofit
         return Tprofit
         
 
