@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
+import ta
 
 class ForexTradingEnv(gym.Env):
     def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=48):
@@ -18,7 +19,7 @@ class ForexTradingEnv(gym.Env):
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(window_size,5), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size,10), dtype=np.float32
         )
 
         self.reset()
@@ -197,6 +198,13 @@ if __name__ == "__main__":
     # data['DATETIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
     data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
     # data['DATETIME'] = data['DATETIME'].astype(np.int64)
+    
+    data["SMA"] = ta.trend.sma_indicator(data["CLOSE"], window=12)
+    data["RSI"] = ta.momentum.rsi(data["CLOSE"])
+    data["OBV"] = ta.volume.on_balance_volume(data["CLOSE"], data["VOL"])
+    data["EMA_9"] = ta.trend.ema_indicator(data["CLOSE"], window=9)
+    data["EMA_21"] = ta.trend.ema_indicator(data["CLOSE"], window=21)
+    data = data.fillna(0)
     print(data)
 
     # Wrap the environment
@@ -206,7 +214,7 @@ if __name__ == "__main__":
     model = PPO("MlpPolicy", env, verbose=1)
 
     # Train the model
-    model.learn(total_timesteps=10000)
+    model.learn(total_timesteps=200000)
 
     # Save the model
     model.save("./temp_ai/ppo_forex_trader")
@@ -216,7 +224,7 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(1000):
+    for _ in range(10000):
     # while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)

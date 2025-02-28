@@ -9,8 +9,8 @@ def main():
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:5555")
     
-    # model_path = "./temp_ai/ppo_forex_trader"  # Path to your trained model
-    model_path = "./temp_ai/CUP"  # Path to your trained model
+    model_path = "./temp_ai/ppo_forex_trader"  # Path to your trained model
+    # model_path = "./temp_ai/CUP"  # Path to your trained model
     
     model = PPO.load(model_path)
     
@@ -52,14 +52,14 @@ def main():
             df = df.drop(["Time"],axis=1)
             # # คำนวณ Indicator
             # df.set_index('Datetime',inplace=True)
-            # df["SMA"] = ta.trend.sma_indicator(df["Close"], window=12)
-            # df["RSI"] = ta.momentum.rsi(df["Close"])
-            # df["OBV"] = ta.volume.on_balance_volume(df["Close"], df["Volume"])
-            # df["EMA_9"] = ta.trend.ema_indicator(df["Close"], window=9)
-            # df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
+            df["SMA"] = ta.trend.sma_indicator(df["Close"], window=12)
+            df["RSI"] = ta.momentum.rsi(df["Close"])
+            df["OBV"] = ta.volume.on_balance_volume(df["Close"], df["Volume"])
+            df["EMA_9"] = ta.trend.ema_indicator(df["Close"], window=9)
+            df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
             
             # # แทนค่า NaN ด้วย 0
-            # df.fillna(0, inplace=True)
+            df.fillna(0, inplace=True)
 
             print(df.tail(24))  # แสดงข้อมูลล่าสุด 24 แท่ง
 
