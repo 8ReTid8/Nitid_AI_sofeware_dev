@@ -9,13 +9,14 @@ datasource db {
 }
 
 model user {
-  user_id       String    @id @unique @default(uuid())
-  user_name     String    @unique @db.VarChar(100)
-  user_role     String    @db.VarChar(50)
-  user_password String    @db.VarChar(100)
-  user_email    String    @unique @db.VarChar(100)
-  mt5_accounts  MT5_Acc[]
-  bill          bill[]
+  user_id             String    @id @unique @default(uuid())
+  user_name           String    @unique @db.VarChar(100)
+  user_role           String    @db.VarChar(50)
+  user_password       String    @db.VarChar(100)
+  user_email          String    @unique @db.VarChar(100)
+  user_last_bill_date DateTime
+  mt5_accounts        MT5_Acc[]
+  bill                bill[]
 }
 
 model PPO_model {
