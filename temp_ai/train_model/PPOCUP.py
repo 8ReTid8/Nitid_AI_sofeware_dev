@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
+import ta
 
 class ForexTradingEnv(gym.Env):
     def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=48):
@@ -14,11 +15,11 @@ class ForexTradingEnv(gym.Env):
         self.window_size = window_size
         self.past_profit = 0
         # Define action space: [0: Hold, 1: Buy, 2: Sell, 3: Close Position]
-        self.action_space = spaces.Discrete(3)
+        self.action_space = spaces.Discrete(4)
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(window_size,5), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size,10), dtype=np.float32
         )
 
         self.reset()
@@ -47,6 +48,7 @@ class ForexTradingEnv(gym.Env):
       
         if len(self.trades) == 0:
             self.open_position("buy", size)
+            
             self.open_position("sell", size)    
         
         if action == 0: # Hold
@@ -56,25 +58,34 @@ class ForexTradingEnv(gym.Env):
                 self.past_profit = c_profit 
             else:
                 reward = -0.5
-        
-        elif action == 1:  # Buy
-            # profit = 0
-            # close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
-            # for i in sorted(close_indices, reverse=True):
-            #     profit += self.cal_balance(i)
                 
-            # self.profit += profit
-            # reward = profit
-            # self.open_position("buy", size)
+        elif action == 1:  #open position buy
             buy_profit, buy_count = self.cal_profit_buy()
             sell_profit, sell_count = self.cal_profit_sell()
             
-            # if(sell_count==1):
-            # if(buy_profit<0):
-                # self.open_position("buy", size)
+            if(buy_count>1 and sell_count==1):
+                self.open_position("buy", size)
+            elif(sell_count==1 and buy_count==1):
+                self.open_position("buy", size)
+            else:
+                reward = -1
                 
-            # elif(buy_count>1): 
-            if(buy_profit>0 and buy_count>1):
+        elif action == 2:  #open position sell
+            buy_profit, buy_count = self.cal_profit_buy()
+            sell_profit, sell_count = self.cal_profit_sell()
+            
+            if(sell_count>1 and buy_count==1):
+                self.open_position("sell", size) 
+            elif(buy_count==1 and sell_count==1):
+                self.open_position("sell", size)
+            else:
+                reward = -1
+             
+        elif action == 3:  #close position
+            buy_profit, buy_count = self.cal_profit_buy()
+            sell_profit, sell_count = self.cal_profit_sell()
+            
+            if(buy_count>1):
                 profit = 0
                 close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
                 for i in sorted(close_indices, reverse=True):
@@ -83,46 +94,71 @@ class ForexTradingEnv(gym.Env):
                 self.profit += profit
                 reward = profit
                 self.open_position("buy", size)
+            elif(sell_count>1):
+                profit = 0
+                close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
+                for i in sorted(close_indices, reverse=True):
+                    profit += self.cal_balance(i)
+                    
+                self.profit += profit    
+                reward = profit
+                self.open_position("sell", size)
+            else:
+                reward = -1
+    
+        # elif action == 1:  # Buy
+        #     buy_profit, buy_count = self.cal_profit_buy()
+        #     sell_profit, sell_count = self.cal_profit_sell()
             
-            elif(sell_count==1):
-                self.open_position("buy", size)
+            # if(sell_count==1):
+            # if(buy_profit<0):
+                # self.open_position("buy", size)
+                
+            # elif(buy_count>1): 
+            # if(buy_profit>0 and buy_count>1):
+            #     profit = 0
+            #     close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
+            #     for i in sorted(close_indices, reverse=True):
+            #         profit += self.cal_balance(i)
+                    
+            #     self.profit += profit
+            #     reward = profit
+            #     self.open_position("buy", size)
+            
+            # if(sell_count==1):
+            #     self.open_position("sell", size)  
+            # elif(buy_count==1):
+            #     self.open_position("buy", size)
 
     
                 
                 
                 
-        elif action == 2:  # Sell
-            # profit = 0
-            # close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
-            
-            # for i in sorted(close_indices, reverse=True):
-            #     profit += self.cal_balance(i)
-
-            # self.profit += profit
-            # reward = profit
-            # self.open_position("sell", size)
-            sell_profit, sell_count = self.cal_profit_sell()
-            buy_profit, buy_count = self.cal_profit_buy()
+        # elif action == 2:  # Sell
+        #     sell_profit, sell_count = self.cal_profit_sell()
+        #     buy_profit, buy_count = self.cal_profit_buy()
             
             # if(buy_count==1):
             # if(sell_profit<0):
             #     self.open_position("sell", size)
             
             # elif(sell_count>1):
-            if(sell_profit>0 and sell_count>1):
-                profit = 0
-                close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
-                for i in sorted(close_indices, reverse=True):
-                    profit += self.cal_balance(i)
+            # if(sell_profit>0 and sell_count>1):
+            #     profit = 0
+            #     close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
+            #     for i in sorted(close_indices, reverse=True):
+            #         profit += self.cal_balance(i)
                     
-                self.profit += profit
-                reward = profit
-                self.open_position("sell", size)
+            #     self.profit += profit
+            #     reward = profit
+            #     self.open_position("sell", size)
                 
-            elif(buy_count==1):
-                self.open_position("sell", size)
-  
-
+            # if(buy_count==1):
+            #     self.open_position("sell", size)  
+            # elif(sell_count==1):
+            #     self.open_position("buy", size)
+                                             
+                                             
         # Update state and check if the episode is done
         self.current_step += 1
         if self.current_step >= len(self.data) - 1:
@@ -205,16 +241,35 @@ if __name__ == "__main__":
     # data['DATETIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
     data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
     # data['DATETIME'] = data['DATETIME'].astype(np.int64)
+    data["SMA"] = ta.trend.sma_indicator(data["CLOSE"], window=12)
+    data["RSI"] = ta.momentum.rsi(data["CLOSE"])
+    data["OBV"] = ta.volume.on_balance_volume(data["CLOSE"], data["VOL"])
+    data["EMA_9"] = ta.trend.ema_indicator(data["CLOSE"], window=9)
+    data["EMA_21"] = ta.trend.ema_indicator(data["CLOSE"], window=21)
+    data = data.fillna(0)
     print(data)
 
     # Wrap the environment
     env = DummyVecEnv([lambda: ForexTradingEnv(data)])
 
     # Initialize the PPO model
-    model = PPO("MlpPolicy", env, verbose=1)
+    # model = PPO("MlpPolicy", env, verbose=1)
+    model = PPO(
+        "MlpPolicy",
+        env,
+        learning_rate=0.0003,  # Reduce learning rate for stability
+        gamma=0.99,  # Keep high to encourage long-term profit
+        gae_lambda=0.95,  # Generalized advantage estimation (helps smooth rewards)
+        ent_coef=0.01,  # Encourage exploration
+        vf_coef=0.5,  # Value function loss weight
+        batch_size=64,  # Process fewer steps per update for stability
+        n_steps=2048,  # More steps per update improves training
+        clip_range=0.2,  # PPO clipping parameter
+        verbose=1
+    )
 
     # Train the model
-    model.learn(total_timesteps=10000)
+    model.learn(total_timesteps=300000)
 
     # Save the model
     model.save("./temp_ai/CUP")
@@ -224,7 +279,7 @@ if __name__ == "__main__":
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(500):
+    for _ in range(10000):
     # while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)

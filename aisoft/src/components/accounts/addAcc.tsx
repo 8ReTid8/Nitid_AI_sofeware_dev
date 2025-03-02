@@ -276,7 +276,7 @@ export function AddAcc() {
         name: "",
         currency: "",
         model: "",
-        volume: "",
+        volume: "0.01",
     });
 
     const handleToggle = () => {
@@ -289,7 +289,7 @@ export function AddAcc() {
                 name: "",
                 currency: "",
                 model: "",
-                volume: "",
+                volume: "0.01",
             });
         }
         setShowModal((prev) => !prev)

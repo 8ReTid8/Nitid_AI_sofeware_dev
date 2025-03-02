@@ -1,11 +1,13 @@
 "use client";
 import DelAccount from "@/components/accounts/deleteAccount";
+import { EditInformation } from "@/components/accounts/editinformation";
 import { useEffect, useState } from "react";
 
 type PPOModel = {
   model_id: string;
   model_name: string;
   model_version: string;
+  model_currency: string;
 };
 
 type AccountDetails = {
@@ -89,11 +91,7 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">{account.acc_name}</h1>
           <div className="flex gap-2">
-            <button className="btn btn-ghost btn-circle">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-              </svg>
-            </button>
+            <EditInformation account={account}/>
             <a href="/accounts" className="btn btn-ghost btn-circle">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M19 12H5M12 19l-7-7 7-7" />

@@ -6,7 +6,9 @@ import ta  # ใช้ไลบรารี pandas-ta (ต้องติดต�
 
 def main():
     context = zmq.Context()
+    
     socket = context.socket(zmq.REP)
+    # socket = context.socket(zmq.ROUTER)
     socket.bind("tcp://*:5555")
     
     model_path = "./temp_ai/ppo_forex_trader"  # Path to your trained model
@@ -35,9 +37,9 @@ def main():
     })
     
     while True:
-        message = socket.recv()
+        # message = socket.recv()
+        client_id, message = socket.recv_multipart()
         message_str = message.decode()
-        # print(f"Received: {message_str}")
 
         try:
             # รองรับการรับ JSON Array
@@ -73,9 +75,8 @@ def main():
         prediction, _ = model.predict(df.tail(48))
         print("prediction",prediction)
         
-        # socket.send_string(str(prediction))
         socket.send_string(str(prediction))
-        
+        # socket.send_multipart([client_id, str(prediction)])        
 
 if __name__ == "__main__":
     main()

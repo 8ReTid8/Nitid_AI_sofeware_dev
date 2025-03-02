@@ -3,7 +3,7 @@ from gym import spaces
 import numpy as np
 import pandas as pd
 from stable_baselines3 import PPO
-from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv,VecNormalize
 import ta
 
 class ForexTradingEnv(gym.Env):
@@ -48,18 +48,21 @@ class ForexTradingEnv(gym.Env):
         # if len(self.trades) > 0:
         #     for trade in self.trades:
         #         trade["hold"] += 1
-                
+        current_profit = self.cal_profit()
+    
+        # Reward based on profit change
+        reward = current_profit - self.past_profit
+        self.past_profit = current_profit
+        
         if action == 0: # Hold
-            # if len(self.trades) == 0:
+            # if self.trades:  
+            #     c_profit = self.cal_profit()
+            #     reward = c_profit - self.past_profit
+            #     self.past_profit = c_profit 
+            # else:
             #     reward = -1
-            # else :
-            #     reward = 0.01
-            if self.trades:  
-                c_profit = self.cal_profit()
-                reward = c_profit - self.past_profit
-                self.past_profit = c_profit 
-            else:
-                reward = -1
+            if len(self.trades) < 0:
+                reward -= 1
                 
         elif action == 1:  # Buy
             # reward = self.open_position("buy", size)
@@ -69,14 +72,17 @@ class ForexTradingEnv(gym.Env):
             # else:
             #     reward = -1
             
-            
             profit = 0
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
             for i in sorted(close_indices, reverse=True):
                 profit += self.cal_balance(i)
                 
             self.profit += profit
-            reward = profit
+            if current_profit > 0:
+                reward += 0.1 * current_profit  # Encourage profitable trades
+            else:
+                reward -= 0.05 * abs(current_profit)  
+            # reward = profit
             self.open_position("buy", size)                     
                 
         elif action == 2:  # Sell
@@ -86,8 +92,7 @@ class ForexTradingEnv(gym.Env):
             #     reward = self.open_position("sell", size)
             # else:
             #     reward = -1
-                 
-            
+                  
             profit = 0
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
             
@@ -95,7 +100,11 @@ class ForexTradingEnv(gym.Env):
                 profit += self.cal_balance(i)
 
             self.profit += profit
-            reward = profit
+            if current_profit > 0:
+                reward += 0.1 * current_profit  # Encourage profitable trades
+            else:
+                reward -= 0.05 * abs(current_profit) 
+            # reward = profit
             self.open_position("sell", size)
   
             
@@ -141,9 +150,6 @@ class ForexTradingEnv(gym.Env):
     
     def open_position(self, action_type, size):
         price = self.data.iloc[self.current_step]["CLOSE"] 
-        # cost = size * price
-        # if self.balance >= cost:  # Check if there's enough balance
-            # self.balance -= cost
         if action_type == "buy":
             self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
         else:
@@ -209,9 +215,19 @@ if __name__ == "__main__":
 
     # Wrap the environment
     env = DummyVecEnv([lambda: ForexTradingEnv(data)])
-
+    env = VecNormalize(env, norm_reward=True)
+    
     # Initialize the PPO model
-    model = PPO("MlpPolicy", env, verbose=1)
+    # model = PPO("MlpPolicy", env, verbose=1)
+    model = PPO(
+        "MlpPolicy",
+        env,
+        learning_rate=0.0001, 
+        batch_size=256,
+        gae_lambda=0.95,
+        ent_coef=0.01,  # Encourage exploration
+        verbose=1
+    )
 
     # Train the model
     model.learn(total_timesteps=200000)

@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -9,9 +10,12 @@ export async function POST(req: Request) {
     }
 
     try {
-        // Perform the deletion logic here (e.g., delete from database)
         console.log(`Deleting account with ID: ${accountId}`);
-
+        const deletedAccount = await prisma.mT5_Acc.delete({
+            where: {
+                acc_id: accountId,
+            },
+        });
         return NextResponse.json({ message: "Account deleted successfully" }, { status: 200 });
     } catch (error) {
         console.error("Error deleting account:", error);
