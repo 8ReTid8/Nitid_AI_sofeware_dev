@@ -37,8 +37,8 @@ def main():
     })
     
     while True:
-        # message = socket.recv()
-        client_id, message = socket.recv_multipart()
+        message = socket.recv()
+        # client_id, message = socket.recv_multipart()
         message_str = message.decode()
 
         try:
