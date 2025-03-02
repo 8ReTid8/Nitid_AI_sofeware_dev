@@ -46,7 +46,6 @@ export async function POST(req: Request){
             user_email: email,
             user_password: hashpassword,
             user_role: "user",
-            user_last_bill_date: new Date(),
           }  
         })
         console.log("TEST2")
