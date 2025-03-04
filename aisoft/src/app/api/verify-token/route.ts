@@ -22,8 +22,7 @@ export async function POST(req: Request) {
                 MT5_id: mt5_ids,
             },
             data: {
-                status: action,
-                balance: balance
+                status: action
             }
         })
         return NextResponse.json({ message: "Success", connect}, { status: 200 });

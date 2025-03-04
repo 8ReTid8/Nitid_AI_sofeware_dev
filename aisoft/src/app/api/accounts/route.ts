@@ -29,7 +29,6 @@ export async function POST(req: Request) {
                 lot_size: volume, // Ensure lot_size is a Float
                 modelid: model,
                 userid: userid?.user_id || "null",
-                balance: 0,
                 last_bill_date: new Date(),
             },
         });

@@ -104,12 +104,9 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
-              <h2 className="card-title text-base-content/60 text-sm">Current Balance</h2>
+              <h2 className="card-title text-base-content/60 text-sm">Currency</h2>
               <p className="text-2xl font-bold">
-                {account.status === "connect"
-                  ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
-                    .format(account.balance || 0)
-                  : "N/A"}
+                {account.model ? account.model.model_currency : "N/A"}
               </p>
             </div>
           </div>

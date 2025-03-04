@@ -14,6 +14,7 @@ class ForexTradingEnv(gym.Env):
         self.max_position_size = max_position_size
         self.window_size = window_size
         self.past_profit = 0
+        
         # Define action space: [0: Hold, 1: Buy, 2: Sell, 3: Close Position]
         self.action_space = spaces.Discrete(3)
 
@@ -76,19 +77,20 @@ class ForexTradingEnv(gym.Env):
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
             for i in sorted(close_indices, reverse=True):
                 profit += self.cal_balance(i)
-                
             self.profit += profit
+            
             # if current_profit > 0:
             #     reward += 0.1 * current_profit  # Encourage profitable trades
             # else:
-            #     reward -= 0.05 * abs(current_profit)  
-            reward += profit
-            
+            #     reward -= 0.05 * abs(current_profit)
+            # self.open_position("buy", size)
+              
+            # reward += profit
             buy_trades = [trade for trade in self.trades if trade["type"] == "buy"]  
             if len(buy_trades) < 10:
                 self.open_position("buy", size)
             else:
-                reward -= 1                    
+                reward -= 1               
                 
         elif action == 2:  # Sell
             #  reward = self.open_position("sell", size)
@@ -103,12 +105,14 @@ class ForexTradingEnv(gym.Env):
             
             for i in sorted(close_indices, reverse=True):
                 profit += self.cal_balance(i)
-
             self.profit += profit
+            
             # if current_profit > 0:
             #     reward += 0.1 * current_profit  # Encourage profitable trades
             # else:
             #     reward -= 0.05 * abs(current_profit) 
+            # self.open_position("sell", size)
+            
             reward += profit
             sell_trades = [trade for trade in self.trades if trade["type"] == "sell"]
             if len(sell_trades) < 10:
@@ -136,12 +140,12 @@ class ForexTradingEnv(gym.Env):
             #     reward = profit
             # else:
             #     reward = -1
-
+        
         # Update state and check if the episode is done
         self.current_step += 1
         if self.current_step >= len(self.data) - 1:
             self.done = True
-
+        
         next_state = self._get_state()
         return next_state, reward, self.done, {}
     
@@ -192,7 +196,6 @@ class ForexTradingEnv(gym.Env):
         # self.balance += ((trade["entry_price"]*trade["size"]) + Tprofit)
         self.balance += Tprofit
         return Tprofit
-        
 
     def render(self, mode="human"):
         print(f"Step: {self.current_step}, Action: {action}, Order: {len(self.trades)}, Balance: {self.balance}, Close: {self.data.iloc[self.current_step]["CLOSE"]}, Profit: {self.profit}")
@@ -241,7 +244,7 @@ if __name__ == "__main__":
     model.learn(total_timesteps=200000)
 
     # Save the model
-    model.save("./temp_ai/ppo_forex_trader")
+    model.save("./temp_ai/model/ppo_forex_trader")
 
     # model = PPO.load("ppo_forex_trader")
     
@@ -255,3 +258,4 @@ if __name__ == "__main__":
         env.render()
         if done:
             break
+
