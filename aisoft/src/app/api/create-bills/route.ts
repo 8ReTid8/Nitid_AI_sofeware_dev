@@ -58,7 +58,12 @@ export async function POST(req: Request) {
                 due_date: new Date(new Date().setDate(new Date().getDate() + 2)),
             },
         });
-
+        const updatedAccount = await prisma.mT5_Acc.update({
+            where: { token: token },
+            data: {
+                last_bill_date: newBill.create_date,
+            },
+        });
         return NextResponse.json({ message: "Bill created successfully", bill: newBill });
     } catch (error) {
         console.error("Error creating bills:", error);
