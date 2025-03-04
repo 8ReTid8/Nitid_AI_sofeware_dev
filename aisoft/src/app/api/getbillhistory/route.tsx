@@ -8,7 +8,10 @@ export async function GET(req: Request) {
     console.log(user_id)
     try {
         const bill = await prisma.bill.findMany({
-            where: {userid: user_id ?? undefined}
+            where: { userid: user_id ?? undefined },
+            include: {
+                mt5_account: true
+            }
         })
         return NextResponse.json(bill, { status: 200 });
     } catch (error) {

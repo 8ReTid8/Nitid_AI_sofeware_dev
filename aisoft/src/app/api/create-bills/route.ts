@@ -5,7 +5,8 @@ export async function POST(req: Request) {
     try {
         const requestData = await req.json();
         const { token, deals } = requestData;
-
+        console.log('🔍 ค้นหาบัญชี MT5 จาก token:', token);
+        console.log('📊 ดีลที่ได้รับ:', deals);
         // ค้นหา userId จาก token ในตาราง mt5account
         const account = await prisma.mT5_Acc.findFirst({
             where: { token: token },
@@ -26,112 +27,39 @@ export async function POST(req: Request) {
         //เช็คว่าบิลเกิน 2 รอบชำระหรือไม่
         const unpaidBillsCount = await prisma.bill.count({
             where: {
-                userid: userId,
+                accid: account.acc_id,
                 bill_status: "Unpaid"
             }
         });
-
-        // ถ้าผู้ใช้มี 2 บิลที่ค้างชำระอยู่แล้ว ให้เปลี่ยน role เป็น BAN
-        if (unpaidBillsCount >= 2) {
-            console.log(`🔴 ผู้ใช้ ${userId} ถูก BAN เนื่องจากมีบิลค้างชำระเกิน 2 รอบบิล`);
-
-            await prisma.user.update({
-                where: { id: userId },
-                data: { role: "BAN" }
-            });
+        console.log('📈 จำนวนบิลที่ค้างชำระ:', unpaidBillsCount);
+        if (unpaidBillsCount >= 1) {
+            return NextResponse.json({ message: "User need to pay last bill" });
         }
 
+        // กรองเฉพาะดีลที่มีกำไร (profit > 0)
+        const profitableDeals = deals.filter((deal: { profit: number }) => deal.profit > 0);
+        const totalProfit = profitableDeals.reduce((sum: number, deal: { profit: number }) => sum + deal.profit, 0);
+        const dealCount = profitableDeals.length;
 
-
-        // ตรวจหาวันที่เก่าสุด และวันที่ใหม่สุดจากดีล
-        // const timestamps = deals.map(deal => deal.time * 1000);
-        const timestamps = deals.map((deal: { time: number; }) => deal.time * 1000);
-        const minDate = new Date(Math.min(...timestamps));
-        const maxDate = new Date(Math.max(...timestamps));
-
-        let currentStart = new Date(minDate);
-        let bills = [];
-        console.log('mindate:', minDate, "maxDate: ", maxDate);
-        while (currentStart <= maxDate) {
-            let currentEnd = new Date(currentStart);
-            currentEnd.setDate(currentEnd.getDate() + 3);
-
-            if (currentEnd > maxDate) {
-                console.log('currentEnd > maxDate ', maxDate, " - ", currentEnd);
-                break;
-            }
-
-            // ตรวจสอบว่าช่วง [currentStart, currentEnd] มีการทับซ้อนกับบิลใดที่มีอยู่แล้วหรือไม่
-            const existingBill = await prisma.bill.findFirst({
-                where: {
-                    User_id: userId,
-                    MT5_accountid: mt5AccountId,
-                    // ตรวจสอบว่า ช่วงเวลาบิลเก่าทับซ้อนกับช่วงใหม่หรือไม่
-                    Billing_startdate: { lt: currentEnd },
-                    Billing_enddate: { gt: currentStart },
-                },
-            });
-
-            if (existingBill) {
-                console.log(`พบบิลซ้ำของ MT5 ${mt5AccountId} ในช่วง ${currentStart.toISOString()} - ${currentEnd.toISOString()} ไม่สร้างซ้ำ`);
-            } else {
-                const filteredDeals = deals.filter((deal: { time: number; }) => {
-                    const dealDate = new Date(deal.time * 1000);
-                    return dealDate >= currentStart && dealDate <= currentEnd;
-                });
-
-                const totalProfit = filteredDeals.reduce((sum: any, deal: { profit: any; }) => sum + deal.profit, 0);
-
-                const dealCount = filteredDeals.length;
-
-                let BILLSHOW;
-
-                if (totalProfit > 0) {
-                    console.log(`🟢 มีกำไรในช่วง ${currentStart.toISOString()} - ${currentEnd.toISOString()}`);
-                    BILLSHOW = true;
-                    const serviceFee = totalProfit * 0.05;
-                    const newBill = await prisma.bill.create({
-                        data: {
-                            User_id: userId,
-                            MT5_accountid: mt5AccountId,
-                            Billing_startdate: currentStart,
-                            Billing_enddate: currentEnd,
-                            Balance: serviceFee,
-                            status: "Unpaid",
-                            Deals_count: dealCount,
-                            Bill_show: BILLSHOW,
-                            dealsData: filteredDeals,
-                        },
-                    });
-                    bills.push({ bill: newBill, deals: filteredDeals });
-                } else if (totalProfit < 0) {
-                    console.log(`🔴 ขาดทุนในช่วง ${currentStart.toISOString()} - ${currentEnd.toISOString()}`);
-                    BILLSHOW = false;
-                    const serviceFee = 0; // หรือคิดค่าบริการตามเงื่อนไขที่ต้องการสำหรับกรณีขาดทุน
-                    const newBill = await prisma.bill.create({
-                        data: {
-                            User_id: userId,
-                            MT5_accountid: mt5AccountId,
-                            Billing_startdate: currentStart,
-                            Billing_enddate: currentEnd,
-                            Balance: serviceFee,
-                            status: "Unpaid",
-                            Deals_count: dealCount,
-                            Bill_show: BILLSHOW,
-                            dealsData: filteredDeals,
-                        },
-                    });
-                    bills.push({ bill: newBill, deals: filteredDeals });
-                } else {
-                    // กรณี totalProfit = 0 พอดี
-                    console.log(`⚪ ไม่มีกำไรหรือขาดทุนในช่วง ${currentStart.toISOString()} - ${currentEnd.toISOString()}`);
-                    // ไม่สร้างบิล
-                }
-            }
-            currentStart.setDate(currentStart.getDate() + 3);
+        if (totalProfit === 0) {
+            return NextResponse.json({ message: "No profitable trades, no bill created" });
         }
 
-        return NextResponse.json({ message: "Bills created successfully", bills });
+        // คิดค่าบริการ 5% ของกำไร
+        const serviceFee = parseFloat((totalProfit * 0.05).toFixed(2));
+        
+        const newBill = await prisma.bill.create({
+            data: {
+                userid: account.userid,
+                accid: account.acc_id,
+                bill_price: serviceFee,
+                bill_status: "Unpaid",
+                create_date: new Date(),
+                due_date: new Date(new Date().setDate(new Date().getDate() + 2)),
+            },
+        });
+
+        return NextResponse.json({ message: "Bill created successfully", bill: newBill });
     } catch (error) {
         console.error("Error creating bills:", error);
         return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });

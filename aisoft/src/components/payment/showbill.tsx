@@ -72,8 +72,7 @@ export default function PaymentPage() {
                                 <div key={index} className="flex flex-col md:flex-row justify-between items-center gap-4">
                                     <div>
                                         <h3 className="text-xl font-semibold">
-                                            {new Date(bill.created_at).toLocaleString("en-US", {
-                                                timeZone: "Asia/Bangkok",
+                                            {new Date(bill.create_date).toLocaleString("en-US", {
                                                 year: "numeric",
                                                 month: "long",
                                                 day: "numeric",

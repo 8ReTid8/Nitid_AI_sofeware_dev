@@ -43,6 +43,7 @@ model MT5_Acc {
   userid         String    @db.VarChar(100)
   model          PPO_model @relation(fields: [modelid], references: [model_id])
   modelid        String    @db.VarChar(100)
+  bill           bill[]
 }
 
 model OHLC_data {
@@ -58,9 +59,10 @@ model bill {
   bill_id     String   @id @unique @default(uuid())
   bill_price  Decimal  @db.Decimal()
   bill_status String   @db.VarChar(50)
-  created_at  DateTime @default(now())
-  from_bot    String   @db.VarChar(50)
+  create_date DateTime
   due_date    DateTime
   user        user     @relation(fields: [userid], references: [user_id])
   userid      String   @db.VarChar(100)
+  mt5_account MT5_Acc  @relation(fields: [accid], references: [acc_id])
+  accid       String   @db.VarChar(100)
 }

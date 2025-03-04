@@ -31,7 +31,7 @@
 //                 <h2 className="card-title text-2xl font-bold">Payment History</h2>
 //                 <div className="divider"></div>
 
-                
+
 //                 <div className="overflow-x-auto">
 //                     <table className="table table-zebra w-full">
 //                         <thead>
@@ -93,7 +93,7 @@ export default function Billhistory() {
                     throw new Error(`Error: ${response.status}`);
                 }
                 const data = await response.json();
-                
+
                 // Ensure data is an array before setting state
                 setBills(Array.isArray(data) ? data : []);
             } catch (err: any) {
@@ -132,9 +132,8 @@ export default function Billhistory() {
                             <tbody>
                                 {bills.map((record: any, index) => (
                                     <tr key={index}>
-                                        <td>{record.from_bot || "Unknown"}</td>
-                                        <td>{record.created_at ? new Date(record.created_at).toLocaleString("en-US", {
-                                            timeZone: "Asia/Bangkok",
+                                        <td>{record.mt5_account.acc_name || "Unknown"}</td>
+                                        <td>{record.create_date ? new Date(record.create_date).toLocaleString("en-US", {
                                             year: "numeric",
                                             month: "long",
                                             day: "numeric",
