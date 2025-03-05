@@ -11,7 +11,7 @@ def main():
     socket = context.socket(zmq.ROUTER)
     socket.bind("tcp://*:5555")
     
-    model_path = "./temp_ai/model/ppo_forex_trader"  # Path to your trained model
+    model_path = "./temp_ai/model/EURUSD/ppo_forex_trader"  # Path to your trained model
     # model_path = "./temp_ai/CUP"  # Path to your trained model
     
     model = PPO.load(model_path)

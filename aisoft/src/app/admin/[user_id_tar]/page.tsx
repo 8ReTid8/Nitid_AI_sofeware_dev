@@ -145,8 +145,11 @@ interface MT5Account {
 
 interface Bill {
   bill_id: string;
-  created_at: string;
+  create_date: string;
   bill_status: string
+  bill_price: string
+  mt5_account: MT5Account
+  accid: string
 }
 
 async function getUserData(user_id: string) {
@@ -233,18 +236,20 @@ export default async function UserDetailPage({ params }: { params: Promise<{ use
             <div className="grid gap-4 mt-4">
               {user.bill?.length > 0 ? (
                 user.bill.map((bill: Bill) => (
+                 
                   <div key={bill.bill_id} className="flex items-center justify-between p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
                     <div className="flex flex-col">
                       <span className="font-medium">Bill id: {bill.bill_id}</span>
+                      <span className="font-medium">Account ID: {bill.accid}</span>
                       <span className="text-sm opacity-70">
-                        {new Date(bill.created_at).toLocaleDateString('en-US', {
+                        {new Date(bill.create_date).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
                         })}
                       </span>
                     </div>
-                    <div className="badge badge-outline">{bill.bill_status}</div>
+                    <div className="badge badge-outline">{bill.bill_status}: ${bill.bill_price}</div>
                   </div>
                 ))
               ) : (

@@ -49,21 +49,19 @@ class ForexTradingEnv(gym.Env):
         # if len(self.trades) > 0:
         #     for trade in self.trades:
         #         trade["hold"] += 1
-        current_profit = self.cal_profit()
+        # current_profit = self.cal_profit()
     
-        # Reward based on profit change
-        reward = current_profit - self.past_profit
-        self.past_profit = current_profit
+        # # Reward based on profit change
+        # reward = current_profit - self.past_profit
+        # self.past_profit = current_profit
         
         if action == 0: # Hold
-            # if self.trades:  
-            #     c_profit = self.cal_profit()
-            #     reward = c_profit - self.past_profit
-            #     self.past_profit = c_profit 
-            # else:
-            #     reward = -1
-            if len(self.trades) < 0:
-                reward -= 1
+            if self.trades:  
+                c_profit = self.cal_profit()
+                reward = c_profit - self.past_profit
+                self.past_profit = c_profit 
+            else:
+                reward = -1
                 
         elif action == 1:  # Buy
             # reward = self.open_position("buy", size)
