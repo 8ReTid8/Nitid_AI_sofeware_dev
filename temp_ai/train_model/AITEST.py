@@ -135,7 +135,7 @@ df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
 df = df.fillna(0)
 
 # Load trained PPO model
-model_path = "./temp_ai/model/ppo_forex_trader"
+model_path = "./temp_ai/model/EURUSD/ppo_forex_trader"
 model = PPO.load(model_path)
 
 class AIPredictStrategy(Strategy):

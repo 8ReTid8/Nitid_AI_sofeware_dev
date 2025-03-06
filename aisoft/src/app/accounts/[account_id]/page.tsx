@@ -18,7 +18,6 @@ type AccountDetails = {
   lot_size: string
   status: string;
   balance?: number;
-  transactions?: { time: string; price: string; profitLoss: string }[];
   model?: PPOModel;
 };
 
@@ -81,9 +80,6 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
     );
   }
 
-  const totalProfitLoss = account.transactions?.reduce((sum, transaction) =>
-    sum + parseFloat(transaction.profitLoss), 0) || 0;
-
   return (
     <div className="min-h-screen bg-base-200 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -91,7 +87,7 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">{account.acc_name}</h1>
           <div className="flex gap-2">
-            <EditInformation account={account}/>
+            <EditInformation account={account} />
             <a href="/accounts" className="btn btn-ghost btn-circle">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M19 12H5M12 19l-7-7 7-7" />
@@ -113,10 +109,6 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
           <div className="card bg-base-100 shadow-xl">
             <div className="card-body">
               <h2 className="card-title text-base-content/60 text-sm">Model</h2>
-              {/* <p className={`text-2xl font-bold ${totalProfitLoss >= 0 ? 'text-success' : 'text-error'}`}>
-                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' })
-                  .format(totalProfitLoss)}
-              </p> */}
               <p className="text-2xl font-bold">
                 {account.model ? account.model.model_name : "N/A"}
               </p>
@@ -124,62 +116,17 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
           </div>
         </div>
 
-        {/* Transactions Table */}
-        {/* <div className="card bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title">Information</h2>
-            <div className="overflow-x-auto">
-              <table className="table table-zebra">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Price</th>
-                    <th>Profit/Loss</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {account.transactions?.length ? (
-                    account.transactions.map((transaction, index) => (
-                      <tr key={index}>
-                        <td>{transaction.time}</td>
-                        <td>{transaction.price}</td>
-                        <td className={`flex items-center gap-2 ${
-                          parseFloat(transaction.profitLoss) >= 0 ? 'text-success' : 'text-error'
-                        }`}>
-                          {parseFloat(transaction.profitLoss) >= 0 ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M7 7l5-5 5 5M7 17l5 5 5-5"/>
-                            </svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M7 7l5 5 5-5M7 17l5-5 5 5"/>
-                            </svg>
-                          )}
-                          {transaction.profitLoss}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={3} className="text-center text-base-content/60">
-                        No transactions available.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div> */}
-
         {/* Improved Account Information Card */}
         <div className="card bg-base-100 shadow-xl">
           <div className="card-body">
             <h2 className="card-title">Account Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
               <div className="bg-base-200 rounded-lg p-4">
-                <h3 className="text-base-content/60 text-sm mb-1">Account ID</h3>
-                <p className="font-semibold text-lg break-all">{account.acc_id}</p>
+                <h3 className="text-base-content/60 text-sm mb-1">Connection Status</h3>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${account.status === "connect" ? "bg-success" : "bg-error"}`}></span>
+                  <p className="font-semibold">{account.status === "connect" ? "Connected" : "Disconnected"}</p>
+                </div>
               </div>
               <div className="bg-base-200 rounded-lg p-4">
                 <h3 className="text-base-content/60 text-sm mb-1">MT5 ID</h3>
@@ -205,13 +152,7 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
                 <h3 className="text-base-content/60 text-sm mb-1">Lot Size</h3>
                 <p className="font-semibold text-lg">{account.lot_size}</p>
               </div>
-              <div className="bg-base-200 rounded-lg p-4 md:col-span-2">
-                <h3 className="text-base-content/60 text-sm mb-1">Connection Status</h3>
-                <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full ${account.status === "connect" ? "bg-success" : "bg-error"}`}></span>
-                  <p className="font-semibold">{account.status === "connect" ? "Connected" : "Disconnected"}</p>
-                </div>
-              </div>
+
             </div>
           </div>
         </div>

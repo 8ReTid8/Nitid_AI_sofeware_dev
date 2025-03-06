@@ -3,30 +3,30 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function GetUser() {
-    try{
+    try {
         const list = await prisma.user.findMany({
-            where:{
-                user_role: "user"
+            include: {
+                bill: true
             }
         })
         return list
     }
-    catch(error){
+    catch (error) {
         console.error(error);
     }
 }
 
-export async function DeleteUser(uId:string) {
-    try{
+export async function DeleteUser(uId: string) {
+    try {
         const list = await prisma.user.update({
-            where:{
+            where: {
                 user_id: uId
             },
-            data:{
+            data: {
                 user_role: "delete"
             }
         })
-    }catch(error){
+    } catch (error) {
         console.log(error)
     }
 }
