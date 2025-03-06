@@ -208,12 +208,9 @@ if __name__ == "__main__":
     # data = pd.read_csv('./temp_ai/EURUSD_M1.csv', delimiter='\t')
     # data = pd.read_csv('./temp_ai/test.csv', delimiter='\t')
     
-    
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
-    # data['DATETIME'] = pd.to_datetime(data['DATE'] + ' ' + data['TIME'])
     data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
-    # data['DATETIME'] = data['DATETIME'].astype(np.int64)
-    
+        
     data["SMA"] = ta.trend.sma_indicator(data["CLOSE"], window=12)
     data["RSI"] = ta.momentum.rsi(data["CLOSE"])
     data["OBV"] = ta.volume.on_balance_volume(data["CLOSE"], data["VOL"])
@@ -242,7 +239,7 @@ if __name__ == "__main__":
     model.learn(total_timesteps=200000)
 
     # Save the model
-    model.save("./temp_ai/model/ppo_forex_trader")
+    model.save("./temp_ai/model/EURUSD/ppo_forex_trader")
 
     # model = PPO.load("ppo_forex_trader")
     
