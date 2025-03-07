@@ -11,7 +11,7 @@ def main():
     socket = context.socket(zmq.ROUTER)
     socket.bind("tcp://*:5555")
     
-    model_path = "./temp_ai/model/EURUSD/ppo_forex_trader"  # Path to your trained model
+    model_path = "./temp_ai/model/EURUSD/v1.0/best_model"  # Path to your trained model
     # model_path = "./temp_ai/CUP"  # Path to your trained model
     
     model = PPO.load(model_path)
@@ -28,12 +28,11 @@ def main():
     #     "Volume": "int64",
     #     "Spread": "int64",
     # })
-    df = pd.DataFrame(columns=["Open", "High", "Low", "Close", "Volume"]).astype({
+    df = pd.DataFrame(columns=["Open", "High", "Low", "Close"]).astype({
         "Open": "float64",
         "High": "float64",
         "Low": "float64",
         "Close": "float64",
-        "Volume": "int64",
     })
     
     while True:
@@ -57,7 +56,6 @@ def main():
             # df.set_index('Datetime',inplace=True)
             df["SMA"] = ta.trend.sma_indicator(df["Close"], window=12)
             df["RSI"] = ta.momentum.rsi(df["Close"])
-            df["OBV"] = ta.volume.on_balance_volume(df["Close"], df["Volume"])
             df["EMA_9"] = ta.trend.ema_indicator(df["Close"], window=9)
             df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
             # MACD
@@ -96,7 +94,7 @@ def main():
         print("prediction",prediction)
         
         # socket.send_string(str(prediction))
-        socket.send_multipart([client_id, str(prediction).encode("utf-8")])        
+        socket.send_multipart([client_id, str(prediction).encode("utf-8")])      
 
 if __name__ == "__main__":
     main()

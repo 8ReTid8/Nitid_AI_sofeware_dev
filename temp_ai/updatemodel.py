@@ -11,7 +11,9 @@ from finta import TA
 from stable_baselines3.common.vec_env import DummyVecEnv
 import pandas as pd
 from stable_baselines3 import PPO
-from trainmodel import ForexTradingEnv  # นำเข้า Environment ที่แยกออกมา
+from train_model.trainmodel import ForexTradingEnv  # นำเข้า Environment ที่แยกออกมา
+# from train_model.AITEST import AIPredictStrategy  # นำเข้า Strategy ที่แยกออกมา
+from backtesting import Backtest, Strategy
 import requests
 
 # กำหนดค่าการเชื่อมต่อ MT5
@@ -30,7 +32,7 @@ def load_latest_model():
 
     available_versions = [v for v in os.listdir(MODEL_DIR) if v.startswith('v')]
     if not available_versions:
-        print("No existing model found. Starting with v1.0")
+        print("No existing model found. Starting with v1.0") 
         current_version = "v1.0"
         return None
 
@@ -101,13 +103,11 @@ def get_new_data():
         'open': 'Open',
         'high': 'High',
         'low': 'Low',
-        'tick_volume': 'Volume',
     }, inplace=True)
 
     # คำนวณ Indicators
     df['SMA'] = ta.trend.sma_indicator(df['Close'], window=12)
     df['RSI'] = ta.momentum.rsi(df['Close'])
-    df['OBV'] = ta.volume.on_balance_volume(df['Close'], df['Volume'])
     df['EMA_9'] = ta.trend.ema_indicator(df['Close'], window=9)
     df['EMA_21'] = ta.trend.ema_indicator(df['Close'], window=21)
     df["MACD"] = ta.trend.macd(df["Close"])
@@ -128,21 +128,25 @@ def get_new_data():
     # Williams %R (Reversals)
     df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
     
-    df = df.drop(columns=['time', 'real_volume','spread'])
+    df = df.drop(columns=['time', 'real_volume','spread','tick_volume'])
     df.fillna(0, inplace=True)
     return df
 
 
 
-API_URL = "http://localhost:3000/api/addnewModel"  # เปลี่ยนเป็น API ที่ต้องการ
+API_URL = "http://localhost:3000/api/addmodel"  # เปลี่ยนเป็น API ที่ต้องการ
 
-def notify_model_update(name, version):
+def notify_model_update(name, version,path,winrate,profitfactor,drawdown):
     """ส่ง API ไปสร้างข้อมูลโมเดล"""
+    formatted_name = f"{name} {version}"
     payload = {
-        "name": name,
+        "name": formatted_name,
+        "currency": name,
         "version": float(version.replace("v", "")),  # แปลง v1.1 → 1.1
-        "Update_at": datetime.utcnow().isoformat(),  # เวลาปัจจุบัน UTC
-        "numberofuse": 0
+        "path" : path ,
+        "winrate": winrate,
+        "profitfactor": profitfactor,
+        "drawdown": drawdown,
     }
     
     response = requests.post(API_URL, json=payload)
@@ -182,13 +186,60 @@ def retrain_model():
     best_model = model
     print(f"Model updated to {new_version}")
     
+    # model = PPO.load(model_path)
+    
+    class AIPredictStrategy(Strategy):
+        modelbt = model   # Assign trained AI model
+        window_size = 48  # Match training environment
+
+        def init(self):
+            pass
+
+        def next(self):
+            # Ensure sufficient historical data
+            if len(self.data) < self.window_size:
+                return
+
+            # Prepare input data (match training format)
+            data_window = self.data.df.iloc[-self.window_size:]
+            data_array = data_window[['Open', 'High', 'Low', 'Close',
+                                    'SMA', 'RSI', 'EMA_9', 'EMA_21','MACD','MACD_SIGNAL','ADX','BB_UPPER','BB_LOWER','ATR','STOCH','WILLR']].values
+            
+            # Ensure correct shape
+            if data_array.shape != (self.window_size, 16):
+                print(f"Invalid data shape: {data_array.shape}. Expected ({self.window_size}, 16).")
+                return
+            
+            # Get AI prediction
+            action_signal, _ = self.modelbt.predict(data_array, deterministic=True)
+
+            # Execute trades based on AI signal
+            if action_signal == 1:  # Buy
+                for trade in self.trades:
+                    if trade.is_short:
+                        trade.close()
+                self.buy(size=0.1)
+            elif action_signal == 2:  # Sell
+                for trade in self.trades:
+                    if trade.is_long:
+                        trade.close()
+                self.sell(size=0.1)
+    
+    bt = Backtest(df, AIPredictStrategy, cash=10000, commission=.002, exclusive_orders=False)
+    outputBT = bt.run()
+    print(outputBT)
+    win_rate = outputBT.get("Win Rate [%]", "N/A")
+    profit_factor = outputBT.get("Profit Factor", "N/A")
+    max_drawdown = outputBT.get("Avg. Drawdown [%]", "N/A") # Fallback to alternative key
+    path = os.path.join(save_path, "best_model.zip")
     # **เรียกใช้ API หลังจากอัปเดตโมเดล**
-    notify_model_update("XAUUSD15M", new_version)
-
-
+    notify_model_update("EURUSD", new_version,path,win_rate,profit_factor,max_drawdown)
+   
+    
+    
 # ตั้งเวลาให้รีเทรนโมเดลทุกๆ 3 เดือน
 # schedule.every(3).months.do(retrain_model)
-schedule.every(2).minutes.do(retrain_model)
+schedule.every(30).minutes.do(retrain_model)
 
 # ฟังก์ชันหลัก
 def main():

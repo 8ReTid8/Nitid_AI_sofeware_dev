@@ -20,7 +20,8 @@ export async function GET(req: Request) {
             select: {
                 model: {
                     select: {
-                        model_name: true, // Only select the model name
+                        model_version: true, // Only select the model name
+                        model_currency: true,
                     },
                 },
             },

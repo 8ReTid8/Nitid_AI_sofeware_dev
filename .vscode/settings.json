@@ -1,5 +1,0 @@
-{
-    "python.analysis.extraPaths": [
-        "./temp_ai/train_model"
-    ]
-}

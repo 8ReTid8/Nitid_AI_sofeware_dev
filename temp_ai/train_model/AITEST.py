@@ -143,7 +143,13 @@ class AIPredictStrategy(Strategy):
     window_size = 48  # Match training environment
 
     def init(self):
-        pass
+        """ Load the model dynamically if not already loaded """
+        if not self.model:
+            model_path = getattr(self, "model_path", None)  # Get model_path if set externally
+            if model_path:
+                self.model = PPO.load(model_path)  # Load model from path
+            else:
+                raise ValueError("Model path is not provided!")
 
     def next(self):
         # Ensure sufficient historical data
@@ -152,12 +158,12 @@ class AIPredictStrategy(Strategy):
 
         # Prepare input data (match training format)
         data_window = self.data.df.iloc[-self.window_size:]
-        data_array = data_window[['Open', 'High', 'Low', 'Close', 'Tick_Volume',
-                                  'SMA', 'RSI', 'OBV', 'EMA_9', 'EMA_21']].values
+        data_array = data_window[['Open', 'High', 'Low', 'Close',
+                                  'SMA', 'RSI', 'EMA_9', 'EMA_21','MACD','MACD_SIGNAL','ADX','BB_UPPER','BB_LOWER','ATR','STOCH','WILLR']].values
         
         # Ensure correct shape
-        if data_array.shape != (self.window_size, 10):
-            print(f"Invalid data shape: {data_array.shape}. Expected ({self.window_size}, 10).")
+        if data_array.shape != (self.window_size, 16):
+            print(f"Invalid data shape: {data_array.shape}. Expected ({self.window_size}, 16).")
             return
         
         # Get AI prediction
@@ -174,7 +180,7 @@ class AIPredictStrategy(Strategy):
                 if trade.is_long:
                     trade.close()
             self.sell(size=0.1)
-
+        
 # Run Backtest
 bt = Backtest(df, AIPredictStrategy, cash=10000, commission=.002, exclusive_orders=False)
 output = bt.run()

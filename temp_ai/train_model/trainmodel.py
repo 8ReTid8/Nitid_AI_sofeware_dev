@@ -20,7 +20,7 @@ class ForexTradingEnv(gym.Env):
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(window_size,18), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size,16), dtype=np.float32
         )
 
         self.reset()
@@ -127,7 +127,7 @@ class ForexTradingEnv(gym.Env):
         return next_state, reward, self.done, {}
     
     def cal_profit(self):
-        current_price = self.data.iloc[self.current_step]["CLOSE"]
+        current_price = self.data.iloc[self.current_step]["Close"]
         unrealized_profits = [
             trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
             else trade["size"] * (trade["entry_price"] - current_price)
@@ -138,7 +138,7 @@ class ForexTradingEnv(gym.Env):
         
     
     def open_position(self, action_type, size):
-        price = self.data.iloc[self.current_step]["CLOSE"] 
+        price = self.data.iloc[self.current_step]["Close"] 
         if action_type == "buy":
             self.trades.append({"type": "buy", "size": size, "entry_price": price,"hold": 0})
         else:
@@ -162,7 +162,7 @@ class ForexTradingEnv(gym.Env):
     
     
     def cal_balance(self,index):
-        current_price = self.data.iloc[self.current_step]["CLOSE"]
+        current_price = self.data.iloc[self.current_step]["Close"]
         trade = self.trades.pop(index)
         Tprofit = 0
         if trade["type"] == "buy":  # Closing a long position
@@ -175,7 +175,7 @@ class ForexTradingEnv(gym.Env):
         return Tprofit
 
     def render(self, mode="human"):
-        print(f"Step: {self.current_step}, Action: {action}, Order: {len(self.trades)}, Balance: {self.balance}, Close: {self.data.iloc[self.current_step]["CLOSE"]}, Profit: {self.profit}")
+        print(f"Step: {self.current_step}, Action: {action}, Order: {len(self.trades)}, Balance: {self.balance}, Close: {self.data.iloc[self.current_step]["Close"]}, Profit: {self.profit}")
     
 
 
@@ -188,33 +188,36 @@ if __name__ == "__main__":
     # data = pd.read_csv('./temp_ai/test.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
-    data = data.drop(["DATE","TIME","VOL","SPREAD"],axis=1)
-        
-    data["SMA"] = ta.trend.sma_indicator(data["CLOSE"], window=12)
-    data["RSI"] = ta.momentum.rsi(data["CLOSE"])
-    data["OBV"] = ta.volume.on_balance_volume(data["CLOSE"], data["TICKVOL"])
-    data["EMA_9"] = ta.trend.ema_indicator(data["CLOSE"], window=9)
-    data["EMA_21"] = ta.trend.ema_indicator(data["CLOSE"], window=21)
-    
+    data = data.drop(["DATE","TIME","VOL","SPREAD","TICKVOL"],axis=1)
+    data.rename(columns={
+        'CLOSE': 'Close',
+        'OPEN': 'Open',
+        'HIGH': 'High',
+        'LOW': 'Low',
+    }, inplace=True) 
+    data["SMA"] = ta.trend.sma_indicator(data["Close"], window=12)
+    data["RSI"] = ta.momentum.rsi(data["Close"])
+    data["EMA_9"] = ta.trend.ema_indicator(data["Close"], window=9)
+    data["EMA_21"] = ta.trend.ema_indicator(data["Close"], window=21)    
     # MACD
-    data["MACD"] = ta.trend.macd(data["CLOSE"])
-    data["MACD_SIGNAL"] = ta.trend.macd_signal(data["CLOSE"])
+    data["MACD"] = ta.trend.macd(data["Close"])
+    data["MACD_SIGNAL"] = ta.trend.macd_signal(data["Close"])
 
     # ADX (Trend Strength)
-    data["ADX"] = ta.trend.adx(data["HIGH"], data["LOW"], data["CLOSE"])
+    data["ADX"] = ta.trend.adx(data["High"], data["Low"], data["Close"])
 
     # Bollinger Bands (Volatility)
-    data["BB_UPPER"] = ta.volatility.bollinger_hband(data["CLOSE"])
-    data["BB_LOWER"] = ta.volatility.bollinger_lband(data["CLOSE"])
+    data["BB_UPPER"] = ta.volatility.bollinger_hband(data["Close"])
+    data["BB_LOWER"] = ta.volatility.bollinger_lband(data["Close"])
 
     # ATR (Volatility)
-    data["ATR"] = ta.volatility.average_true_range(data["HIGH"], data["LOW"], data["CLOSE"])
+    data["ATR"] = ta.volatility.average_true_range(data["High"], data["Low"], data["Close"])
 
     # Stochastic Oscillator (Reversals)
-    data["STOCH"] = ta.momentum.stoch(data["HIGH"], data["LOW"], data["CLOSE"])
+    data["STOCH"] = ta.momentum.stoch(data["High"], data["Low"], data["Close"])
 
     # Williams %R (Reversals)
-    data["WILLR"] = ta.momentum.williams_r(data["HIGH"], data["LOW"], data["CLOSE"])
+    data["WILLR"] = ta.momentum.williams_r(data["High"], data["Low"], data["Close"])
 
     data = data.fillna(0)
     print(data)
@@ -236,10 +239,10 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    model.learn(total_timesteps=200000)
+    model.learn(total_timesteps=10000)
 
     # Save the model
-    model.save("./temp_ai/model/EURUSD/ppo_forex_trader")
+    model.save("./temp_ai/model/EURUSD/v1.0/best_model")
 
     # model = PPO.load("ppo_forex_trader")
     

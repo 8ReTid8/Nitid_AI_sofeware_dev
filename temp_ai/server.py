@@ -13,7 +13,7 @@ from finta import TA
 models_dict = {}
 
 def load_all_models():
-    base_dir = "./models"
+    base_dir = "./temp_ai/model"
     # ล้าง dictionary ก่อนโหลดใหม่
     global models_dict
     models_dict = {}
@@ -51,7 +51,7 @@ def main():
     load_all_models()
     
     # ตั้งเวลาให้รีโหลดโมเดลใหม่ทุก 30 วัน
-    schedule.every(3).minute.do(reload_new_models)
+    # schedule.every(3).minutes.do(reload_new_models)
     
     # เริ่ม thread สำหรับ scheduler
     threading.Thread(target=scheduler_thread, daemon=True).start()
@@ -73,13 +73,14 @@ def main():
         try:
             # แปลงข้อมูล JSON ที่ได้รับ
             data = json.loads(message_str)
-            ea_id = data.get('ea_id')
+            # ea_id = data.get('ea_id')
             ohlc_data = data.get('ohlc_data')
             pair = data.get('pair')          # เช่น "XAUUSD15M", "EURUSD1H"
-            version = data.get('model_version')  # เช่น "v1.0", "v1.1"
+            # version = data.get('model_version')  # เช่น "v1.0", "v1.1"
+            version = "v" + str(data.get('model_version')) 
             
             # ตรวจสอบความถูกต้องของข้อมูลที่ได้รับ
-            if ea_id is None or ohlc_data is None or pair is None:
+            if ohlc_data is None or pair is None:
                 raise ValueError("Missing required fields: ea_id, ohlc_data, or pair")
             
             # ถ้าไม่ระบุเวอร์ชัน ให้ใช้เวอร์ชันล่าสุด (โดยเรียงลำดับแล้วเลือกตัวท้ายสุด)
@@ -98,25 +99,45 @@ def main():
             
             # แปลงข้อมูลเข้า DataFrame
             df = pd.DataFrame(ohlc_data)
-            df.set_index('Datetime', inplace=True)
+            df = df.drop(["Time"],axis=1)
+            # df.set_index('Datetime', inplace=True)
             
             # คำนวณ Indicator
             df["SMA"] = ta.trend.sma_indicator(df["Close"], window=12)
             df["RSI"] = ta.momentum.rsi(df["Close"])
-            df["OBV"] = ta.volume.on_balance_volume(df["Close"], df["Volume"])
             df["EMA_9"] = ta.trend.ema_indicator(df["Close"], window=9)
             df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
-            df['ATR'] = TA.ATR(df)
+            # MACD
+            df["MACD"] = ta.trend.macd(df["Close"])
+            df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
+
+            # ADX (Trend Strength)
+            df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
+
+            # Bollinger Bands (Volatility)
+            df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
+            df["BB_LOWER"] = ta.volatility.bollinger_lband(df["Close"])
+
+            # ATR (Volatility)
+            df["ATR"] = ta.volatility.average_true_range(df["High"], df["Low"], df["Close"])
+
+            # Stochastic Oscillator (Reversals)
+            df["STOCH"] = ta.momentum.stoch(df["High"], df["Low"], df["Close"])
+
+            # Williams %R (Reversals)
+            df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
             
             df.fillna(0, inplace=True)
             # ใช้ข้อมูลล่าสุด 24 แท่งเท่านั้น
-            df_latest = df.tail(24)
+            df_latest = df.tail(48)
             
             # ทำ Prediction
             prediction, _ = model.predict(df_latest, deterministic=True)
             print("prediction", prediction)
             response = {'reply_by': str(pair)+str(version), 'prediction': str(prediction)}
-            socket.send_multipart([client_id, json.dumps(response).encode()])
+            # socket.send_multipart([client_id, json.dumps(response).encode()])
+            socket.send_multipart([client_id, str(prediction).encode("utf-8")])      
+            
         
         except json.JSONDecodeError:
             print("Error: Invalid JSON format")
