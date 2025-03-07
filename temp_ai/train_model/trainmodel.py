@@ -20,7 +20,7 @@ class ForexTradingEnv(gym.Env):
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(window_size,10), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size,18), dtype=np.float32
         )
 
         self.reset()
@@ -117,27 +117,6 @@ class ForexTradingEnv(gym.Env):
                 self.open_position("sell", size)
             else:
                 reward -= 1
-            
-        # elif action == 3:  # Close Position
-            # if self.trades:  
-            #     current_price = self.data.iloc[self.current_step]["CLOSE"]
-            #     unrealized_profits = [
-            #         trade["size"] * (current_price - trade["entry_price"]) if trade["type"] == "buy"
-            #         else trade["size"] * (trade["entry_price"] - current_price)
-            #         for trade in self.trades
-            #     ]
-            #     reward = self.close_position(unrealized_profits,size)
-            # else:
-            #     reward = -2
-            
-            # profit = 0
-            # if self.trades:
-            #     for i in range(len(self.trades) - 1, -1, -1):
-            #         profit += self.cal_balance(i)
-            #     self.profit += profit        
-            #     reward = profit
-            # else:
-            #     reward = -1
         
         # Update state and check if the episode is done
         self.current_step += 1
@@ -209,13 +188,34 @@ if __name__ == "__main__":
     # data = pd.read_csv('./temp_ai/test.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
-    data = data.drop(["DATE","TIME","TICKVOL","SPREAD"],axis=1)
+    data = data.drop(["DATE","TIME","VOL","SPREAD"],axis=1)
         
     data["SMA"] = ta.trend.sma_indicator(data["CLOSE"], window=12)
     data["RSI"] = ta.momentum.rsi(data["CLOSE"])
-    data["OBV"] = ta.volume.on_balance_volume(data["CLOSE"], data["VOL"])
+    data["OBV"] = ta.volume.on_balance_volume(data["CLOSE"], data["TICKVOL"])
     data["EMA_9"] = ta.trend.ema_indicator(data["CLOSE"], window=9)
     data["EMA_21"] = ta.trend.ema_indicator(data["CLOSE"], window=21)
+    
+    # MACD
+    data["MACD"] = ta.trend.macd(data["CLOSE"])
+    data["MACD_SIGNAL"] = ta.trend.macd_signal(data["CLOSE"])
+
+    # ADX (Trend Strength)
+    data["ADX"] = ta.trend.adx(data["HIGH"], data["LOW"], data["CLOSE"])
+
+    # Bollinger Bands (Volatility)
+    data["BB_UPPER"] = ta.volatility.bollinger_hband(data["CLOSE"])
+    data["BB_LOWER"] = ta.volatility.bollinger_lband(data["CLOSE"])
+
+    # ATR (Volatility)
+    data["ATR"] = ta.volatility.average_true_range(data["HIGH"], data["LOW"], data["CLOSE"])
+
+    # Stochastic Oscillator (Reversals)
+    data["STOCH"] = ta.momentum.stoch(data["HIGH"], data["LOW"], data["CLOSE"])
+
+    # Williams %R (Reversals)
+    data["WILLR"] = ta.momentum.williams_r(data["HIGH"], data["LOW"], data["CLOSE"])
+
     data = data.fillna(0)
     print(data)
 

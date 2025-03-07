@@ -11,8 +11,8 @@ def main():
     socket = context.socket(zmq.ROUTER)
     socket.bind("tcp://*:5555")
     
-    # model_path = "./temp_ai/model/EURUSD/ppo_forex_trader"  # Path to your trained model
-    model_path = "./temp_ai/CUP"  # Path to your trained model
+    model_path = "./temp_ai/model/EURUSD/ppo_forex_trader"  # Path to your trained model
+    # model_path = "./temp_ai/CUP"  # Path to your trained model
     
     model = PPO.load(model_path)
     
@@ -60,6 +60,25 @@ def main():
             df["OBV"] = ta.volume.on_balance_volume(df["Close"], df["Volume"])
             df["EMA_9"] = ta.trend.ema_indicator(df["Close"], window=9)
             df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
+            # MACD
+            df["MACD"] = ta.trend.macd(df["Close"])
+            df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
+
+            # ADX (Trend Strength)
+            df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
+
+            # Bollinger Bands (Volatility)
+            df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
+            df["BB_LOWER"] = ta.volatility.bollinger_lband(df["Close"])
+
+            # ATR (Volatility)
+            df["ATR"] = ta.volatility.average_true_range(df["High"], df["Low"], df["Close"])
+
+            # Stochastic Oscillator (Reversals)
+            df["STOCH"] = ta.momentum.stoch(df["High"], df["Low"], df["Close"])
+
+            # Williams %R (Reversals)
+            df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
             
             # # แทนค่า NaN ด้วย 0
             df.fillna(0, inplace=True)
