@@ -49,28 +49,24 @@ class ForexTradingEnv(gym.Env):
         # if len(self.trades) > 0:
         #     for trade in self.trades:
         #         trade["hold"] += 1
-        # current_profit = self.cal_profit()
     
         # # Reward based on profit change
-        # reward = current_profit - self.past_profit
-        # self.past_profit = current_profit
+        current_profit = self.cal_profit()
+        reward = current_profit - self.past_profit
+        self.past_profit = current_profit
         
         if action == 0: # Hold
-            if self.trades:  
-                c_profit = self.cal_profit()
-                reward = c_profit - self.past_profit
-                self.past_profit = c_profit 
-            else:
-                reward = -1
-                
-        elif action == 1:  # Buy
-            # reward = self.open_position("buy", size)
-            
-            # if len(self.trades) < 5:
-            #     reward = self.open_position("buy", size)
+            # if self.trades:  
+            #     c_profit = self.cal_profit()
+            #     reward = c_profit - self.past_profit
+            #     self.past_profit = c_profit 
             # else:
             #     reward = -1
-            
+            if self.trades == 0:
+                reward -= 1
+                
+        elif action == 1:  # Buy
+        
             profit = 0
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "sell"]
             for i in sorted(close_indices, reverse=True):
@@ -82,7 +78,12 @@ class ForexTradingEnv(gym.Env):
             # else:
             #     reward -= 0.05 * abs(current_profit)
             # self.open_position("buy", size)
-              
+            
+            if current_profit > 0:
+                reward += 0.1 * profit  # Encourage profitable trades
+            else:
+                reward -= 0.05 * abs(profit)
+                 
             # reward += profit
             buy_trades = [trade for trade in self.trades if trade["type"] == "buy"]  
             if len(buy_trades) < 10:
@@ -91,12 +92,6 @@ class ForexTradingEnv(gym.Env):
                 reward -= 1               
                 
         elif action == 2:  # Sell
-            #  reward = self.open_position("sell", size)
-                
-            # if len(self.trades) < 5:
-            #     reward = self.open_position("sell", size)
-            # else:
-            #     reward = -1
                   
             profit = 0
             close_indices = [i for i in range(len(self.trades)) if self.trades[i]["type"] == "buy"]
@@ -109,9 +104,13 @@ class ForexTradingEnv(gym.Env):
             #     reward += 0.1 * current_profit  # Encourage profitable trades
             # else:
             #     reward -= 0.05 * abs(current_profit) 
-            # self.open_position("sell", size)
             
-            reward += profit
+            if current_profit > 0:
+                reward += 0.1 * profit  # Encourage profitable trades
+            else:
+                reward -= 0.05 * abs(profit) 
+            
+            # reward += profit
             sell_trades = [trade for trade in self.trades if trade["type"] == "sell"]
             if len(sell_trades) < 10:
                 self.open_position("sell", size)
@@ -239,7 +238,7 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    model.learn(total_timesteps=10000)
+    model.learn(total_timesteps=200000)
 
     # Save the model
     model.save("./temp_ai/model/EURUSD/v1.0/best_model")

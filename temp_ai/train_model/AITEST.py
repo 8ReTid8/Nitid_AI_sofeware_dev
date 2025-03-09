@@ -118,24 +118,43 @@ if not mt5.initialize():
 
 # Get historical data (1-hour OHLC)
 symbol = "EURUSD"
-rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 50000)  # Get last 1000 1-hour bars
+rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 720)  # Get last 1000 1-hour bars
 
 # Convert data to DataFrame
 df = pd.DataFrame(rates)
 df['time'] = pd.to_datetime(df['time'], unit='s')
 df = df[['time', 'open', 'high', 'low', 'close', 'tick_volume']]
 df.columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Tick_Volume']
+df = df.drop(["Time","Tick_Volume"],axis=1)
 
 # Add indicators similar to training setup
 df["SMA"] = ta.trend.sma_indicator(df["Close"], window=12)
 df["RSI"] = ta.momentum.rsi(df["Close"])
-df["OBV"] = ta.volume.on_balance_volume(df["Close"], df["Tick_Volume"])
 df["EMA_9"] = ta.trend.ema_indicator(df["Close"], window=9)
 df["EMA_21"] = ta.trend.ema_indicator(df["Close"], window=21)
+# MACD
+df["MACD"] = ta.trend.macd(df["Close"])
+df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
+
+# ADX (Trend Strength)
+df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
+
+# Bollinger Bands (Volatility)
+df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
+df["BB_LOWER"] = ta.volatility.bollinger_lband(df["Close"])
+
+# ATR (Volatility)
+df["ATR"] = ta.volatility.average_true_range(df["High"], df["Low"], df["Close"])
+
+# Stochastic Oscillator (Reversals)
+df["STOCH"] = ta.momentum.stoch(df["High"], df["Low"], df["Close"])
+
+# Williams %R (Reversals)
+df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
 df = df.fillna(0)
 
 # Load trained PPO model
-model_path = "./temp_ai/model/EURUSD/ppo_forex_trader"
+model_path = "./temp_ai/model/EURUSD/v1.0/best_model.zip"
 model = PPO.load(model_path)
 
 class AIPredictStrategy(Strategy):
@@ -143,13 +162,14 @@ class AIPredictStrategy(Strategy):
     window_size = 48  # Match training environment
 
     def init(self):
-        """ Load the model dynamically if not already loaded """
-        if not self.model:
-            model_path = getattr(self, "model_path", None)  # Get model_path if set externally
-            if model_path:
-                self.model = PPO.load(model_path)  # Load model from path
-            else:
-                raise ValueError("Model path is not provided!")
+        # """ Load the model dynamically if not already loaded """
+        # if not self.model:
+        #     model_path = getattr(self, "model_path", None)  # Get model_path if set externally
+        #     if model_path:
+        #         self.model = PPO.load(model_path)  # Load model from path
+        #     else:
+        #         raise ValueError("Model path is not provided!")
+        pass
 
     def next(self):
         # Ensure sufficient historical data
@@ -167,7 +187,7 @@ class AIPredictStrategy(Strategy):
             return
         
         # Get AI prediction
-        action_signal, _ = self.model.predict(data_array, deterministic=True)
+        action_signal, _ = self.model.predict(data_array)
 
         # Execute trades based on AI signal
         if action_signal == 1:  # Buy
