@@ -45,7 +45,7 @@ export default function PaymentPage() {
         fetchBilldue();
     }, [session]);
 
-   
+
 
     const handlePaymentClick = (bill: any) => {
         setSelectedBill(bill);
@@ -72,13 +72,37 @@ export default function PaymentPage() {
                                 <div key={index} className="flex flex-col md:flex-row justify-between items-center gap-4">
                                     <div>
                                         <h3 className="text-xl font-semibold">
-                                            {new Date(bill.create_date).toLocaleString("en-US", {
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            })}
+                                            Due date:
+                                            {/* <span className="ml-2">
+                                            
+                                                {new Date(bill.due_date).toLocaleString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })}
+                                            </span> */}
+                                            <span className={`ml-2 ${new Date() > new Date(bill.due_date) ? 'text-red-500' : ''}`}>
+                                                {new Date(bill.due_date).toLocaleString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })}
+                                                {new Date() > new Date(bill.due_date) && bill.bill_status !== "Paid" &&
+                                                    <span className="ml-2 font-bold">(LATE)</span>
+                                                }
+                                            </span>
                                         </h3>
+                                        <p className="mt-2">Bill create at:
+                                            <span className="ml-2 font-bold">
+                                                {new Date(bill.create_date).toLocaleString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })}
+                                            </span>
+                                        </p>
                                         <p className="mt-2">Amount: <span className="font-bold">{bill.bill_price}$</span></p>
+
                                         <div className="mt-2">
                                             Status:
                                             <span className={`ml-2 badge ${bill.bill_status === 'Paid' ? 'badge-success' : 'badge-warning'}`}>
