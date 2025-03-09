@@ -15,7 +15,7 @@ export async function middleware(req: NextRequest) {
         const data = await response.json();
 
         if (response.ok && data.role === 'ban') {
-            return NextResponse.redirect(new URL('/payment', req.url));
+            return NextResponse.redirect(new URL('/ban', req.url));
         }
     } catch (error) {
         console.error('❌ Middleware error:', error);
