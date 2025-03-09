@@ -51,7 +51,7 @@ def main():
     load_all_models()
     
     # ตั้งเวลาให้รีโหลดโมเดลใหม่ทุก 30 วัน
-    # schedule.every(3).minutes.do(reload_new_models)
+    schedule.every(10).minutes.do(reload_new_models)
     
     # เริ่ม thread สำหรับ scheduler
     threading.Thread(target=scheduler_thread, daemon=True).start()
@@ -138,7 +138,6 @@ def main():
             # socket.send_multipart([client_id, json.dumps(response).encode()])
             socket.send_multipart([client_id, str(prediction).encode("utf-8")])      
             
-        
         except json.JSONDecodeError:
             print("Error: Invalid JSON format")
             socket.send_multipart([client_id, b"Error: Invalid JSON format"])

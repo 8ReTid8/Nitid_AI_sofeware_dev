@@ -19,15 +19,6 @@ def main():
     print("Python Server: Waiting for messages...")
     
     # กำหนด DataFrame ล่วงหน้า
-    # df = pd.DataFrame(columns=["Datetime", "Open", "High", "Low", "Close", "Volume", "Spread"]).astype({
-    #     "Datetime": "string",
-    #     "Open": "float64",
-    #     "High": "float64",
-    #     "Low": "float64",
-    #     "Close": "float64",
-    #     "Volume": "int64",
-    #     "Spread": "int64",
-    # })
     df = pd.DataFrame(columns=["Open", "High", "Low", "Close"]).astype({
         "Open": "float64",
         "High": "float64",

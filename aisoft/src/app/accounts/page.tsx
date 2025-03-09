@@ -2,9 +2,14 @@
 import { useSession } from "next-auth/react";
 import { AddAcc } from "../../components/accounts/addAcc";
 import ShowAccounts from "@/components/accounts/showAcc";
+import { redirect } from "next/navigation";
 
 export default function Accounts() {
     const session = useSession();
+    // console.log(session.data?.user?.role);
+    // if (session.data?.user?.role === "ban") {
+    //     return redirect("/payment");
+    // }
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Main Content */}

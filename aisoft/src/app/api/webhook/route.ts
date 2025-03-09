@@ -27,6 +27,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         console.log("✅ Payment Success!");
         console.log(paymentIntent)
+        
         const updateBill = await prisma.bill.update({
             where:{
                 bill_id: paymentIntent.metadata.billid
@@ -35,6 +36,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
                 bill_status: "Paid"
             }
         })
+        const userpayment = await prisma.user.findFirst({
+            where:{
+                user_id: paymentIntent.metadata.userId
+            }
+        })
+        if(userpayment?.user_role=="ban"){
+            const updateUser = await prisma.user.update({
+                where:{
+                    user_id: paymentIntent.metadata.userId
+                },
+                data:{
+                    user_role: "user"
+                }
+            })
+        }
     }
     return new NextResponse("ok", { status: 200 })
 }

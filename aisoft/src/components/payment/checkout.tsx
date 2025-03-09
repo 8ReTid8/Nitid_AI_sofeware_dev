@@ -71,7 +71,7 @@ export default function CheckOutpage({ amount, sessionid, selectbill }: { amount
                         <div className="bg-base-200 p-4 rounded-lg mb-6">
                             <div className="flex justify-between items-center">
                                 <span className="text-base-content/70">Amount to pay</span>
-                                <span className="text-xl font-semibold">${amount}.00</span>
+                                <span className="text-xl font-semibold">${amount}</span>
                             </div>
                         </div>
 
@@ -106,7 +106,7 @@ export default function CheckOutpage({ amount, sessionid, selectbill }: { amount
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
-                                    Pay ${amount}.00
+                                    Pay ${amount}
                                 </>
                             )}
                         </button>
