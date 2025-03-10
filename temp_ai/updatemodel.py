@@ -211,7 +211,7 @@ def retrain_model():
                 return
             
             # Get AI prediction
-            action_signal, _ = self.modelbt.predict(data_array, deterministic=True)
+            action_signal, _ = self.modelbt.predict(data_array)
 
             # Execute trades based on AI signal
             if action_signal == 1:  # Buy
