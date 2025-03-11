@@ -16,6 +16,7 @@ from train_model.trainmodel import ForexTradingEnv  # นำเข้า Environ
 from backtesting import Backtest, Strategy
 import requests
 
+
 # กำหนดค่าการเชื่อมต่อ MT5
 LOGIN = 5033743269
 PASSWORD = 'HbBi!p5a'

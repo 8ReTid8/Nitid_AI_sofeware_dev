@@ -22,7 +22,7 @@ export default function PaymentPage() {
     const [showStripeForm, setShowStripeForm] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    console.log(Date.now())
     useEffect(() => {
         const fetchBilldue = async () => {
             try {
@@ -73,19 +73,13 @@ export default function PaymentPage() {
                                     <div>
                                         <h3 className="text-xl font-semibold">
                                             Due date:
-                                            {/* <span className="ml-2">
                                             
+                                            <span className={`ml-2 ${Date.now() > new Date(bill.due_date).getTime() ? 'text-red-500' : ''}`}>
                                                 {new Date(bill.due_date).toLocaleString("en-US", {
                                                     year: "numeric",
                                                     month: "long",
                                                     day: "numeric",
-                                                })}
-                                            </span> */}
-                                            <span className={`ml-2 ${new Date() > new Date(bill.due_date) ? 'text-red-500' : ''}`}>
-                                                {new Date(bill.due_date).toLocaleString("en-US", {
-                                                    year: "numeric",
-                                                    month: "long",
-                                                    day: "numeric",
+                                                    timeZone: "UTC"
                                                 })}
                                                 {new Date() > new Date(bill.due_date) && bill.bill_status !== "Paid" &&
                                                     <span className="ml-2 font-bold">(LATE)</span>
