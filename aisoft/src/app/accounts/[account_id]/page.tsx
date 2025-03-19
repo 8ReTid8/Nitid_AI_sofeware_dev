@@ -159,14 +159,6 @@ export default function AccountPage({ params }: { params: Promise<{ account_id: 
 
         {/* Action Buttons */}
         <div className="flex gap-4">
-          <button className="btn btn-primary gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M10 15l5-5" />
-              <path d="M9 9h6v6" />
-            </svg>
-            Stop
-          </button>
           {accountId && <DelAccount AccId={accountId} />}
         </div>
       </div>

@@ -21,6 +21,7 @@
     "daisyui": "^4.12.14",
     "dayjs": "^1.11.13",
     "express": "^4.21.2",
+    "luxon": "^3.5.0",
     "next": "^15.0.3",
     "next-auth": "^4.24.11",
     "node-cron": "^3.0.3",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@types/archiver": "^6.0.3",
     "@types/bcrypt": "^5.0.2",
+    "@types/luxon": "^3.4.2",
     "@types/node": "^20",
     "@types/node-cron": "^3.0.11",
     "@types/react": "^18",

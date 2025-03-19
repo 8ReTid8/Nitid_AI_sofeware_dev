@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const session = await authSession();
   console.log(session?.user.role);
+  console.log(new Date(new Date().getTime() + 7 * 60 * 60 * 1000))
   if (session?.user.role === "admin") {
     return redirect("/admin");
   }
