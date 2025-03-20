@@ -15,7 +15,7 @@ from train_model.trainmodel import ForexTradingEnv  # นำเข้า Environ
 # from train_model.AITEST import AIPredictStrategy  # นำเข้า Strategy ที่แยกออกมา
 from backtesting import Backtest, Strategy
 import requests
-
+import yfinance as yf
 
 # กำหนดค่าการเชื่อมต่อ MT5
 LOGIN = 5033743269
@@ -23,7 +23,7 @@ PASSWORD = 'HbBi!p5a'
 SERVER = 'MetaQuotes-Demo'
 
 # กำหนดโฟลเดอร์โมเดล
-MODEL_DIR = "./temp_ai/model/EURUSD/"
+MODEL_DIR = "./temp_ai/model/GBPUSD/"
 
 # ฟังก์ชันโหลดเวอร์ชันล่าสุดของโมเดล
 def load_latest_model():
@@ -69,6 +69,107 @@ def get_next_version():
 
     return "v" + ".".join(map(str, parts))
 
+def fetch_ohlc_data(symbol, timeframe='1h', months=3):
+    # กำหนดช่วงเวลา
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=30*months)  # จำนวนเดือนย้อนหลัง
+    
+    # สร้างรายการเพื่อเก็บข้อมูล
+    data_chunks = []
+    
+    # ต้องแบ่งเป็นช่วงๆ ละ 7 วันสำหรับข้อมูล intraday
+    current_end = end_date
+    current_start = current_end - timedelta(days=7)
+    
+    while current_start >= start_date:
+        # ปรับให้ current_start ไม่เกินกว่า start_date ที่ต้องการ
+        if current_start < start_date:
+            current_start = start_date
+            
+        print(f"กำลังดึงข้อมูลจาก {current_start} ถึง {current_end}")
+        
+        try:
+            # ดึงข้อมูลตาม timeframe ที่กำหนด
+            df = yf.download(
+                symbol, 
+                start=current_start, 
+                end=current_end, 
+                interval=timeframe,
+                progress=False
+            )
+            
+            if not df.empty:
+                data_chunks.append(df)
+                print(f"  ดึงข้อมูลสำเร็จ: {len(df)} แถว")
+            else:
+                print("  ไม่พบข้อมูลในช่วงเวลานี้")
+        
+        except Exception as e:
+            print(f"  เกิดข้อผิดพลาด: {e}")
+        
+        # เลื่อนช่วงเวลาไปอีก 7 วัน
+        current_end = current_start
+        current_start = current_start - timedelta(days=7)
+        
+        # หน่วงเวลาเพื่อหลีกเลี่ยงการถูกจำกัดการเข้าถึง
+        time.sleep(1)
+    
+    # รวมข้อมูลทั้งหมด
+    if data_chunks:
+        full_data = pd.concat(data_chunks)
+        
+        # เรียงข้อมูลตามเวลาและลบข้อมูลซ้ำ
+        full_data = full_data.sort_index()
+        full_data = full_data[~full_data.index.duplicated(keep='first')]
+        
+        # แสดงข้อมูลสรุป
+        print("\nสรุปข้อมูล:")
+        print(f"จำนวนแถวทั้งหมด: {len(full_data)}")
+        print(f"วันที่เริ่มต้น: {full_data.index.min()}")
+        print(f"วันที่สิ้นสุด: {full_data.index.max()}")
+        print(f"จำนวนวันทั้งหมด: {(full_data.index.max() - full_data.index.min()).days}")
+
+        print("\n5 แถวแรก:")
+        print(full_data.head())
+
+        print("\n5 แถวสุดท้าย:")
+        print(full_data.tail())
+        df = full_data
+        df = df[['Open', 'High', 'Low', 'Close']]
+        df.columns = ['Open', 'High', 'Low', 'Close']
+        print(df.columns)
+        
+        # คำนวณ Indicators
+        df['SMA'] = ta.trend.sma_indicator(df['Close'], window=12)
+        df['RSI'] = ta.momentum.rsi(df['Close'])
+        df['EMA_9'] = ta.trend.ema_indicator(df['Close'], window=9)
+        df['EMA_21'] = ta.trend.ema_indicator(df['Close'], window=21)
+        df["MACD"] = ta.trend.macd(df["Close"])
+        df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
+        # ADX (Trend Strength)
+        df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
+
+        # Bollinger Bands (Volatility)
+        df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
+        df["BB_LOWER"] = ta.volatility.bollinger_lband(df["Close"])
+
+        # ATR (Volatility)
+        df["ATR"] = ta.volatility.average_true_range(df["High"], df["Low"], df["Close"])
+
+        # Stochastic Oscillator (Reversals)
+        df["STOCH"] = ta.momentum.stoch(df["High"], df["Low"], df["Close"])
+
+        # Williams %R (Reversals)
+        df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
+        
+        # df = df.drop(columns=['time', 'real_volume','spread','tick_volume'])
+        df.fillna(0, inplace=True)
+        return df
+        # return full_data
+    else:
+        print("ไม่สามารถดึงข้อมูลได้")
+        return pd.DataFrame()  # ส่งคืน DataFrame ว่าง
+
 # ฟังก์ชันดึงข้อมูลราคาจาก MT5
 def get_new_data():
     # ล็อกอิน MT5
@@ -81,7 +182,7 @@ def get_new_data():
         return None
 
     # ดึงข้อมูลราคา
-    symbol = "EURUSD"
+    symbol = "GBPUSD"
     timeframe = mt5.TIMEFRAME_H1
     date_to = datetime.now()
     date_from = date_to - timedelta(days=90)  # 3 เดือน
@@ -162,7 +263,8 @@ def retrain_model():
     global best_model, current_version
     print("Retraining the model...")
 
-    df = get_new_data()
+    # df = get_new_data()
+    df = fetch_ohlc_data(symbol="GBPUSD=X")
     if df is None:
         print("Error: Could not fetch new data.")
         return
@@ -234,13 +336,13 @@ def retrain_model():
     max_drawdown = outputBT.get("Avg. Drawdown [%]", "N/A") # Fallback to alternative key
     path = os.path.join(save_path, "best_model.zip")
     # **เรียกใช้ API หลังจากอัปเดตโมเดล**
-    notify_model_update("EURUSD", new_version,path,win_rate,profit_factor,max_drawdown)
+    notify_model_update("GBPUSD", new_version,path,win_rate,profit_factor,max_drawdown)
    
     
     
 # ตั้งเวลาให้รีเทรนโมเดลทุกๆ 3 เดือน
-# schedule.every(3).months.do(retrain_model)
-schedule.every(1).minutes.do(retrain_model)
+schedule.every(3).months.do(retrain_model)
+# schedule.every(1).minutes.do(retrain_model)
 
 # ฟังก์ชันหลัก
 def main():

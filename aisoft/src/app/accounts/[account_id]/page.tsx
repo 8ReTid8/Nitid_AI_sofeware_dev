@@ -30,6 +30,7 @@ async function getAccountDetails(account_id: string) {
 }
 
 export default function AccountPage({ params }: { params: Promise<{ account_id: string }> }) {
+
   const [account, setAccount] = useState<AccountDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);

@@ -5,8 +5,8 @@ import { DateTime } from "luxon";
 
 export async function POST(req: Request) {
     const session = await authSession();
-    const lastBillDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
-    console.log("Bangkok Time Stored:", lastBillDate);
+    // const lastBillDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
+    // console.log("Bangkok Time Stored:", lastBillDate);
     try {
         const body = await req.json();
         console.log(body)
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
                 lot_size: volume, // Ensure lot_size is a Float
                 modelid: model,
                 userid: userid?.user_id || "null",
-                last_bill_date: lastBillDate,
+                last_bill_date: new Date(),
             },
         });
 

@@ -13,10 +13,6 @@ export default async function SignIn() {
             return redirect("/");
         }
     }
-    else {
-
-    }
-
     return (
         <div>
             <SignInForm />

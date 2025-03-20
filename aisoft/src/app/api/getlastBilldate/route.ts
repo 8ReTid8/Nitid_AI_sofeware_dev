@@ -20,7 +20,17 @@ export async function GET(req: Request) {
                 last_bill_date: true
             }
         });
-        return NextResponse.json({last_billed:lastBillDate?.last_bill_date})
+        if (!lastBillDate?.last_bill_date) {
+            return NextResponse.json(
+                { error: 'Last bill date not found' },
+                { status: 404 }
+            );
+        }
+        const lastBillDateUTC = new Date(lastBillDate.last_bill_date);
+        const lastBillDateMT5 = new Date(lastBillDateUTC.getTime() + 2 * 60 * 60 * 1000);
+        console.log(lastBillDateMT5)
+        return NextResponse.json({ last_billed: lastBillDateMT5 });
+        // return NextResponse.json({ last_billed: lastBillDate?.last_bill_date })
 
     } catch (error) {
         console.error('Error fetching last bill date:', error);

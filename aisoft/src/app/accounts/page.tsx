@@ -6,10 +6,10 @@ import { redirect } from "next/navigation";
 
 export default function Accounts() {
     const session = useSession();
-    // console.log(session.data?.user?.role);
-    // if (session.data?.user?.role === "ban") {
-    //     return redirect("/payment");
-    // }
+    console.log(session.data?.user?.role);
+    if (session.data?.user?.role === "admin") {
+        return redirect("/admin");
+    }
     return (
         <div className="min-h-screen bg-gray-100">
             {/* Main Content */}

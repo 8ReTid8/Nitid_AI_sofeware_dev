@@ -6,6 +6,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import CheckOutpage from "@/components/payment/checkout";
 import Billhistory from "./billhistory";
 import { useSession } from "next-auth/react";
+import { DateTime } from "luxon";
 
 if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
     throw new Error("Cannot find Stripe public key");
@@ -45,12 +46,11 @@ export default function PaymentPage() {
         fetchBilldue();
     }, [session]);
 
-
-
     const handlePaymentClick = (bill: any) => {
         setSelectedBill(bill);
         setShowStripeForm(true);
     };
+    console.log(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }))
 
     return (
         <div className="min-h-screen bg-base-200 p-8">
@@ -73,15 +73,30 @@ export default function PaymentPage() {
                                     <div>
                                         <h3 className="text-xl font-semibold">
                                             Due date:
-                                            
-                                            <span className={`ml-2 ${Date.now() > new Date(bill.due_date).getTime() ? 'text-red-500' : ''}`}>
+                                            {/* <span className={`ml-2 ${Date.now() > new Date(bill.due_date).getTime() ? 'text-red-500' : ''}`}>
                                                 {new Date(bill.due_date).toLocaleString("en-US", {
                                                     year: "numeric",
                                                     month: "long",
                                                     day: "numeric",
-                                                    timeZone: "UTC"
+                                                    timeZone: "UTC",
                                                 })}
+
                                                 {new Date() > new Date(bill.due_date) && bill.bill_status !== "Paid" &&
+                                                    <span className="ml-2 font-bold">(LATE)</span>
+                                                }
+                                            </span> */}
+                                            <span className={`ml-2 ${new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }) > new Date(bill.due_date).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }) && bill.bill_status !== "Paid" ? 'text-red-500' : ''}`}>
+                                                {new Date(bill.due_date).toLocaleString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    second: "2-digit",
+                                                    timeZone: "Asia/Bangkok"
+                                                })}
+
+                                                {new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }) > new Date(bill.due_date).toLocaleString("en-US", { timeZone: "Asia/Bangkok" }) && bill.bill_status !== "Paid" &&
                                                     <span className="ml-2 font-bold">(LATE)</span>
                                                 }
                                             </span>

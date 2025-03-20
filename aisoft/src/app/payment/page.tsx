@@ -1,6 +1,14 @@
+"use client";
 import Showbill from "@/components/payment/showbill";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function Payment() {
+    const session = useSession();
+    console.log(session.data?.user?.role);
+    if (session.data?.user?.role === "admin") {
+        return redirect("/admin");
+    }
     return (
         <div className="min-h-screen bg-gray-100">
             <main className="p-6">

@@ -8,21 +8,21 @@ import { verify } from "argon2";
 
 declare module "next-auth" {
   interface User {
-      role: string;
-      id: string;
+    role: string;
+    id: string;
   }
   interface Session {
-      user: {
-          role: string;
-          id: string;
-      } & DefaultSession["user"];
+    user: {
+      role: string;
+      id: string;
+    } & DefaultSession["user"];
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-      id?: string;
-      role: string;
+    id?: string;
+    role: string;
   }
 }
 export const authOptions: NextAuthOptions = {
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
 
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Please enter an email and password");
         }
 
         const existingUser = await prisma.user.findUnique({
@@ -55,13 +55,13 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (!existingUser) {
-          return null;
+          throw new Error("email_not_found");
         }
 
         const passwordMatch = await verify(existingUser.user_password, credentials.password);
 
         if (!passwordMatch) {
-          return null;
+          throw new Error("password_incorrect");
         }
 
         return {

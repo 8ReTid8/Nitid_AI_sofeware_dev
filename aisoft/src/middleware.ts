@@ -17,6 +17,9 @@ export async function middleware(req: NextRequest) {
         if (response.ok && data.role === 'ban') {
             return NextResponse.redirect(new URL('/ban', req.url));
         }
+        if (response.ok && data.role === 'admin'){
+            return NextResponse.redirect(new URL('/admin', req.url));
+        }
     } catch (error) {
         console.error('❌ Middleware error:', error);
     }
