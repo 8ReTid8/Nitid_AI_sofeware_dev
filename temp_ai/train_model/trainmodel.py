@@ -182,9 +182,9 @@ class ForexTradingEnv(gym.Env):
 if __name__ == "__main__":
     
     #data
-    data = pd.read_csv('./temp_ai/data/EURUSD_H1.csv', delimiter='\t')
+    # data = pd.read_csv('./temp_ai/data/EURUSD_H1.csv', delimiter='\t')
     # data = pd.read_csv('./temp_ai/data/GBPUSD_H1.csv', delimiter='\t')
-    # data = pd.read_csv('./temp_ai/data/USDJPY_H1.csv', delimiter='\t')
+    data = pd.read_csv('./temp_ai/data/USDJPY_H1.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
     data = data.drop(["DATE","TIME","VOL","SPREAD","TICKVOL"],axis=1)
@@ -241,9 +241,9 @@ if __name__ == "__main__":
     model.learn(total_timesteps=200000)
 
     # Save the model
-    model.save("./temp_ai/model/EURUSD/v1.0/best_model")
+    # model.save("./temp_ai/model/EURUSD/v1.0/best_model")
     # model.save("./temp_ai/model/GBPUSD/v1.0/best_model")
-    # model.save("./temp_ai/model/USDJPY/v1.0/best_model")
+    model.save("./temp_ai/model/USDJPY/v1.0/best_model")
 
     # model = PPO.load("ppo_forex_trader")
     

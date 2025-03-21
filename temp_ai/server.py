@@ -51,7 +51,9 @@ def main():
     load_all_models()
     
     # ตั้งเวลาให้รีโหลดโมเดลใหม่ทุก 30 วัน
-    schedule.every(10).minutes.do(reload_new_models)
+    # schedule.every(10).minutes.do(reload_new_models)
+    schedule.every(2193).hours.do(reload_new_models)
+    
     
     # เริ่ม thread สำหรับ scheduler
     threading.Thread(target=scheduler_thread, daemon=True).start()

@@ -28,7 +28,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - db 
-
+      - db
+  stripe-cli:
+    image: stripe/stripe-cli
+    container_name: stripe-cli
+    command: "listen --forward-to http://localhost:3000/api/webhook"
+    env_file:
+      - ./rotrade/.env.local
 volumes:
   postgres_data:
