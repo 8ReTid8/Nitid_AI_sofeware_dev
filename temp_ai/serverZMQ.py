@@ -72,7 +72,7 @@ def main():
             # # แทนค่า NaN ด้วย 0
             df.fillna(0, inplace=True)
 
-            print(df.tail(24))  # แสดงข้อมูลล่าสุด 24 แท่ง
+            # print(df.tail(24))  # แสดงข้อมูลล่าสุด 24 แท่ง
 
         except json.JSONDecodeError:
             print("Error: Invalid JSON format")
