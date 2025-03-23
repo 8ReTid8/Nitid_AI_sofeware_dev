@@ -16,7 +16,7 @@ services:
     container_name: client
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./aisoft/Dockerfile
     ports:
       - "3000:3000"
     volumes:
@@ -26,14 +26,33 @@ services:
       - "CHOKIDAR_USEPOLLING=true"
       - WATCHPACK_POLLING=true
     env_file:
-      - .env
+      - ./aisoft/.env
     depends_on:
       - db
+
   stripe-cli:
     image: stripe/stripe-cli
     container_name: stripe-cli
     command: "listen --forward-to http://localhost:3000/api/webhook"
     env_file:
-      - ./rotrade/.env.local
+      - ./aisoft/.env
+
+  python-services:
+    build:
+      context: .
+      dockerfile: ./temp_ai/Dockerfile
+    container_name: python-services
+    depends_on:
+      - db  # Remove this if the scripts don't need PostgreSQL
+    volumes:
+      - "./temp_ai:/app"
+    command: >
+      sh -c "
+      python /app/server.py & 
+      python /app/checkduebill.py & 
+      python /app/updatemodel_EURUSD.py & 
+      python /app/updatemodel_GBPUSD.py & 
+      python /app/updatemodel_USDJPY.py & 
+      wait"
 volumes:
   postgres_data:

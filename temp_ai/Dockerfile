@@ -17,5 +17,9 @@ COPY . .
 # เปิด port 5555 (สำหรับ ZeroMQ)
 EXPOSE 5555
 
-# กำหนดคำสั่งเริ่มต้น container
-CMD ["python", "main.py"]
+CMD python server.py & \
+    python checkduebill.py & \
+    python updatemodel_EURUSD.py & \
+    python updatemodel_GBPUSD.py & \
+    python updatemodel_USDJPY.py & \
+    wait

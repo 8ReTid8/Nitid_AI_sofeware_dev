@@ -8,6 +8,9 @@ export async function POST(req: Request) {
         console.log('🔍 ค้นหาบัญชี MT5 จาก token:', token);
         console.log('📊 ดีลที่ได้รับ:', deals);
         // ค้นหา userId จาก token ในตาราง mt5account
+        if(!token || !deals){
+            return NextResponse.json({message: "no information send"},{status: 400})
+        }
         const account = await prisma.mT5_Acc.findFirst({
             where: { token: token },
         });
