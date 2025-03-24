@@ -4,7 +4,7 @@ import time
 import schedule
 from stable_baselines3 import PPO
 from datetime import datetime, timedelta
-import MetaTrader5 as mt5
+# import MetaTrader5 as mt5
 import pandas as pd
 import ta
 from finta import TA
@@ -23,7 +23,8 @@ PASSWORD = 'HbBi!p5a'
 SERVER = 'MetaQuotes-Demo'
 
 # กำหนดโฟลเดอร์โมเดล
-MODEL_DIR = "./temp_ai/model/EURUSD/"
+# MODEL_DIR = "./temp_ai/model/EURUSD/"
+MODEL_DIR = "./model/EURUSD/"
 
 # ฟังก์ชันโหลดเวอร์ชันล่าสุดของโมเดล
 def load_latest_model():
@@ -171,68 +172,68 @@ def fetch_ohlc_data(symbol, timeframe='1h', months=3):
         return pd.DataFrame()  # ส่งคืน DataFrame ว่าง
 
 # ฟังก์ชันดึงข้อมูลราคาจาก MT5
-def get_new_data():
-    # ล็อกอิน MT5
-    if not mt5.initialize():
-        print("MetaTrader5 initialize failed!")
-        return None
+# def get_new_data():
+#     # ล็อกอิน MT5
+#     if not mt5.initialize():
+#         print("MetaTrader5 initialize failed!")
+#         return None
     
-    if not mt5.login(LOGIN, PASSWORD, SERVER):
-        print("MT5 login failed!")
-        return None
+#     if not mt5.login(LOGIN, PASSWORD, SERVER):
+#         print("MT5 login failed!")
+#         return None
 
-    # ดึงข้อมูลราคา
-    symbol = "EURUSD"
-    timeframe = mt5.TIMEFRAME_H1
-    date_to = datetime.now()
-    date_from = date_to - timedelta(days=90)  # 3 เดือน
+#     # ดึงข้อมูลราคา
+#     symbol = "EURUSD"
+#     timeframe = mt5.TIMEFRAME_H1
+#     date_to = datetime.now()
+#     date_from = date_to - timedelta(days=90)  # 3 เดือน
 
-    rates = mt5.copy_rates_range(symbol, timeframe, date_from, date_to)
-    mt5.shutdown()
+#     rates = mt5.copy_rates_range(symbol, timeframe, date_from, date_to)
+#     mt5.shutdown()
 
-    if rates is None or len(rates) == 0:
-        print("No data received from MetaTrader 5")
-        return None
+#     if rates is None or len(rates) == 0:
+#         print("No data received from MetaTrader 5")
+#         return None
 
-    # แปลงเป็น DataFrame
-    df = pd.DataFrame(rates)
-    # df['Datetime'] = pd.to_datetime(df['time'], unit='s')
-    # df.set_index('Datetime', inplace=True)
+#     # แปลงเป็น DataFrame
+#     df = pd.DataFrame(rates)
+#     # df['Datetime'] = pd.to_datetime(df['time'], unit='s')
+#     # df.set_index('Datetime', inplace=True)
 
-    # เปลี่ยนชื่อคอลัมน์
-    df.rename(columns={
-        'close': 'Close',
-        'open': 'Open',
-        'high': 'High',
-        'low': 'Low',
-    }, inplace=True)
+#     # เปลี่ยนชื่อคอลัมน์
+#     df.rename(columns={
+#         'close': 'Close',
+#         'open': 'Open',
+#         'high': 'High',
+#         'low': 'Low',
+#     }, inplace=True)
 
-    # คำนวณ Indicators
-    df['SMA'] = ta.trend.sma_indicator(df['Close'], window=12)
-    df['RSI'] = ta.momentum.rsi(df['Close'])
-    df['EMA_9'] = ta.trend.ema_indicator(df['Close'], window=9)
-    df['EMA_21'] = ta.trend.ema_indicator(df['Close'], window=21)
-    df["MACD"] = ta.trend.macd(df["Close"])
-    df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
-    # ADX (Trend Strength)
-    df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
+#     # คำนวณ Indicators
+#     df['SMA'] = ta.trend.sma_indicator(df['Close'], window=12)
+#     df['RSI'] = ta.momentum.rsi(df['Close'])
+#     df['EMA_9'] = ta.trend.ema_indicator(df['Close'], window=9)
+#     df['EMA_21'] = ta.trend.ema_indicator(df['Close'], window=21)
+#     df["MACD"] = ta.trend.macd(df["Close"])
+#     df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
+#     # ADX (Trend Strength)
+#     df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
 
-    # Bollinger Bands (Volatility)
-    df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
-    df["BB_LOWER"] = ta.volatility.bollinger_lband(df["Close"])
+#     # Bollinger Bands (Volatility)
+#     df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
+#     df["BB_LOWER"] = ta.volatility.bollinger_lband(df["Close"])
 
-    # ATR (Volatility)
-    df["ATR"] = ta.volatility.average_true_range(df["High"], df["Low"], df["Close"])
+#     # ATR (Volatility)
+#     df["ATR"] = ta.volatility.average_true_range(df["High"], df["Low"], df["Close"])
 
-    # Stochastic Oscillator (Reversals)
-    df["STOCH"] = ta.momentum.stoch(df["High"], df["Low"], df["Close"])
+#     # Stochastic Oscillator (Reversals)
+#     df["STOCH"] = ta.momentum.stoch(df["High"], df["Low"], df["Close"])
 
-    # Williams %R (Reversals)
-    df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
+#     # Williams %R (Reversals)
+#     df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
     
-    df = df.drop(columns=['time', 'real_volume','spread','tick_volume'])
-    df.fillna(0, inplace=True)
-    return df
+#     df = df.drop(columns=['time', 'real_volume','spread','tick_volume'])
+#     df.fillna(0, inplace=True)
+#     return df
 
 
 

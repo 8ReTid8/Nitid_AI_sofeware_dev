@@ -13,7 +13,7 @@ from finta import TA
 models_dict = {}
 
 def load_all_models():
-    base_dir = "./temp_ai/model"
+    base_dir = "./model"
     # ล้าง dictionary ก่อนโหลดใหม่
     global models_dict
     models_dict = {}
