@@ -14,7 +14,7 @@ def checkduebill():
     else:
         print(f"Failed to register model: {response.text}")
         
-schedule.every(1).minutes.do(checkduebill)
+schedule.every(720).minutes.do(checkduebill)
 
 # ฟังก์ชันหลัก
 def main():

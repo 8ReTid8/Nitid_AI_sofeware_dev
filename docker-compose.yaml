@@ -15,12 +15,12 @@ services:
   client:
     container_name: client
     build:
-      context: .
-      dockerfile: ./aisoft/Dockerfile
+      context: ./aisoft
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - ".:/app"
+      - "./aisoft:/app"
       - "/app/node_modules"
     environment:
       - "CHOKIDAR_USEPOLLING=true"
@@ -39,8 +39,8 @@ services:
 
   python-services:
     build:
-      context: .
-      dockerfile: ./temp_ai/Dockerfile
+      context: ./temp_ai
+      dockerfile: Dockerfile
     container_name: python-services
     depends_on:
       - db  # Remove this if the scripts don't need PostgreSQL
