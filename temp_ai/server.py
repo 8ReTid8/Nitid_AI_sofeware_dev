@@ -8,11 +8,13 @@ import json
 import pandas as pd
 import ta  # ใช้ pandas-ta
 from finta import TA
+import logging
 
 # dictionary สำหรับเก็บโมเดลทั้งหมด
 models_dict = {}
 
 def load_all_models():
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     base_dir = "./model"
     # ล้าง dictionary ก่อนโหลดใหม่
     global models_dict
@@ -29,13 +31,17 @@ def load_all_models():
                 if os.path.isdir(version_path):
                     model_file = os.path.join(version_path, "best_model.zip")
                     if os.path.exists(model_file):
+                        logging.info(f"Loading model: {pair} {version}")
                         print(f"Loading model: {pair} {version}")
                         models_dict[pair][version] = PPO.load(model_file)
                     else:
+                        logging.info(f"Model file not found for: {pair} {version}")
                         print(f"Model file not found for: {pair} {version}")
 
 def reload_new_models():
     """ฟังก์ชันที่ตรวจสอบและโหลดโมเดลใหม่ (อัปเดตเวอร์ชัน) ทุก 30 วัน"""
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.info("Reloading models with new version updates...")
     print("Reloading models with new version updates...")
     load_all_models()
     print("Models reloaded.")
@@ -49,7 +55,8 @@ def scheduler_thread():
 def main():
     # โหลดโมเดลทั้งหมดตอนเริ่มต้น
     load_all_models()
-    
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.info("server is running")
     # ตั้งเวลาให้รีโหลดโมเดลใหม่ทุก 30 วัน
     # schedule.every(10).minutes.do(reload_new_models)
     schedule.every(2193).hours.do(reload_new_models)
@@ -64,6 +71,7 @@ def main():
     socket.bind("tcp://*:5555")
     
     print("Python Server: Waiting for messages...")
+    logging.info("Python Server: Waiting for messages...")
     
     while True:
         # รับข้อความจาก client พร้อม identity (ea_id)
@@ -135,6 +143,7 @@ def main():
             
             # ทำ Prediction
             prediction, _ = model.predict(df_latest, deterministic=True)
+            logging.info(f"prediction {prediction}")
             print("prediction", prediction)
             response = {'reply_by': str(pair)+str(version), 'prediction': str(prediction)}
             # socket.send_multipart([client_id, json.dumps(response).encode()])

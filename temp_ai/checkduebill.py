@@ -1,9 +1,10 @@
+import logging
 import time
 import requests
 import schedule
 
 
-API_URL = "http://localhost:3000/api/checkduebill"  # เปลี่ยนเป็น API ที่ต้องการ
+API_URL = "http://client:3000/api/checkduebill"  # เปลี่ยนเป็น API ที่ต้องการ
 
 def checkduebill():
 
@@ -18,7 +19,8 @@ schedule.every(720).minutes.do(checkduebill)
 
 # ฟังก์ชันหลัก
 def main():
-
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.info("checkduebill RUNNING")
     # รัน scheduler
     while True:
         schedule.run_pending()

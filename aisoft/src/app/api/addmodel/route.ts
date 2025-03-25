@@ -5,9 +5,9 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         console.log(body)
-        const { name, currency, version, path, winrate,profitfactor,drawdown } = body;
+        const { name, currency, version, winrate,profitfactor,drawdown } = body;
 
-        if (!version || !name || !currency || !path || !winrate || !profitfactor || !drawdown) {
+        if (!version || !name || !currency || !winrate || !profitfactor || !drawdown) {
             return NextResponse.json({ error: "All fields are required" }, { status: 400 });
         }
         const newModel = await prisma.pPO_model.create({
@@ -15,11 +15,9 @@ export async function POST(req: Request) {
                 model_name: name,
                 model_version: String(version),
                 model_currency: currency,
-                model_path: path,
                 model_winrate: winrate,
                 model_profit_factor: profitfactor,
                 model_drawdown: drawdown,
-                model_status: "",
             },
         });
       

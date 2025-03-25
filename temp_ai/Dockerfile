@@ -17,9 +17,13 @@ COPY . .
 # เปิด port 5555 (สำหรับ ZeroMQ)
 EXPOSE 5555
 
-CMD python server.py & \
-    python checkduebill.py & \
-    python updatemodel_EURUSD.py & \
-    python updatemodel_GBPUSD.py & \
-    python updatemodel_USDJPY.py & \
-    wait
+# CMD python checkduebill.py & \
+#     python updatemodel_EURUSD.py & \
+#     python updatemodel_GBPUSD.py & \
+#     python updatemodel_USDJPY.py & \
+#     wait
+
+# CMD ["python", "server.py"]
+
+CMD ["sh", "-c", "python server.py & python checkduebill.py & python updatemodel_EURUSD.py & python updatemodel_GBPUSD.py & python updatemodel_USDJPY.py & wait"]
+

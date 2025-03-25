@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import logging
 import os
 import time
 import schedule
@@ -237,16 +238,16 @@ def fetch_ohlc_data(symbol, timeframe='1h', months=3):
 
 
 
-API_URL = "http://localhost:3000/api/addmodel"  # เปลี่ยนเป็น API ที่ต้องการ
+API_URL = "http://client:3000/api/addmodel"  # เปลี่ยนเป็น API ที่ต้องการ
 
-def notify_model_update(name, version,path,winrate,profitfactor,drawdown):
+def notify_model_update(name, version,winrate,profitfactor,drawdown):
     """ส่ง API ไปสร้างข้อมูลโมเดล"""
     formatted_name = f"{name} {version}"
     payload = {
         "name": formatted_name,
         "currency": name,
         "version": float(version.replace("v", "")),  # แปลง v1.1 → 1.1
-        "path" : path ,
+        # "path" : path ,
         "winrate": winrate,
         "profitfactor": profitfactor,
         "drawdown": drawdown,
@@ -335,18 +336,20 @@ def retrain_model():
     win_rate = outputBT.get("Win Rate [%]", "N/A")
     profit_factor = outputBT.get("Profit Factor", "N/A")
     max_drawdown = outputBT.get("Avg. Drawdown [%]", "N/A") # Fallback to alternative key
-    path = os.path.join(save_path, "best_model.zip")
+    # path = os.path.join(save_path, "best_model.zip")
     # **เรียกใช้ API หลังจากอัปเดตโมเดล**
-    notify_model_update("EURUSD", new_version,path,win_rate,profit_factor,max_drawdown)
+    notify_model_update("EURUSD", new_version,win_rate,profit_factor,max_drawdown)
    
     
     
 # ตั้งเวลาให้รีเทรนโมเดลทุกๆ 3 เดือน
-schedule.every(2160).hours.do(retrain_model)
-# schedule.every(1).minutes.do(retrain_model)
+# schedule.every(2160).hours.do(retrain_model)
+schedule.every(1).minutes.do(retrain_model)
 
 # ฟังก์ชันหลัก
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.info("update EURUSD RUNNING")
     global best_model
     best_model = load_latest_model()
 

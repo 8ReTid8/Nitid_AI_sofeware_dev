@@ -46,6 +46,8 @@ services:
       - db  # Remove this if the scripts don't need PostgreSQL
     volumes:
       - "./temp_ai:/app"
+    ports:
+      - "5555:5555"
     command: >
       sh -c "
       python /app/server.py & 

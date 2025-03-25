@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import logging
 import os
 import time
 import schedule
@@ -347,6 +348,8 @@ schedule.every(2160).hours.do(retrain_model)
 
 # ฟังก์ชันหลัก
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    logging.info("update GBPUSD RUNNING")
     global best_model
     best_model = load_latest_model()
 

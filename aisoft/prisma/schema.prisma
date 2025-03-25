@@ -20,10 +20,10 @@ model user {
 model PPO_model {
   model_id            String    @id @unique @default(uuid())
   model_name          String    @unique @db.VarChar(50)
-  model_path          String    @db.VarChar(255)
+  // model_path          String    @db.VarChar(255)
   model_currency      String    @db.VarChar(50)
   model_version       String    @db.VarChar(50)
-  model_status        String    @db.VarChar(50)
+  // model_status        String    @db.VarChar(50)
   model_winrate       Decimal   @db.Decimal()
   model_profit_factor Decimal   @db.Decimal()
   model_drawdown      Decimal   @db.Decimal()
@@ -45,14 +45,14 @@ model MT5_Acc {
   bill           bill[]
 }
 
-model OHLC_data {
-  OHLC_id   Int      @id @unique @default(autoincrement())
-  OHLC_date DateTime @db.Date
-  open      Decimal  @db.Decimal
-  high      Decimal  @db.Decimal
-  low       Decimal  @db.Decimal
-  close     Decimal  @db.Decimal
-}
+// model OHLC_data {
+//   OHLC_id   Int      @id @unique @default(autoincrement())
+//   OHLC_date DateTime @db.Date
+//   open      Decimal  @db.Decimal
+//   high      Decimal  @db.Decimal
+//   low       Decimal  @db.Decimal
+//   close     Decimal  @db.Decimal
+// }
 
 model bill {
   bill_id     String   @id @unique @default(uuid())
