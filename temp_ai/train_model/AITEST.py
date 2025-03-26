@@ -117,7 +117,7 @@ if not mt5.initialize():
     exit()
 
 # Get historical data (1-hour OHLC)
-symbol = "EURUSD"
+symbol = "USDJPY"
 rates = mt5.copy_rates_from_pos(symbol, mt5.TIMEFRAME_H1, 0, 1440)  # Get last 1000 1-hour bars
 
 # Convert data to DataFrame
@@ -154,7 +154,7 @@ df["WILLR"] = ta.momentum.williams_r(df["High"], df["Low"], df["Close"])
 df = df.fillna(0)
 
 # Load trained PPO model
-model_path = "./temp_ai/model/EURUSD/v1.0/best_model.zip"
+model_path = "./temp_ai/model/USDJPY/v1.0/best_model.zip"
 model = PPO.load(model_path)
 
 class AIPredictStrategy(Strategy):

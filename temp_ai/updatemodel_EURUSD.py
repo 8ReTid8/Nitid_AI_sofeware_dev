@@ -259,6 +259,44 @@ def notify_model_update(name, version,winrate,profitfactor,drawdown):
     else:
         print(f"Failed to register model: {response.text}")
 
+# def backtest(env, model):
+#     obs = env.reset()
+#     total_trades = 0
+#     wins = 0
+#     losses = 0
+#     profits = []
+#     max_drawdown = 0
+#     peak = -float('inf')
+#     balance = 10000
+#     initial_balance = balance
+
+#     while True:
+#         action, _ = model.predict(obs)
+#         obs, reward, done, info = env.step(action)
+#         balance += reward
+#         total_trades += 1
+#         profits.append(balance - initial_balance)
+
+#         if reward > 0:
+#             wins += 1
+#         elif reward < 0:
+#             losses += 1
+
+#         peak = max(peak, balance)
+#         drawdown = (peak - balance) / peak if peak != 0 else 0
+#         max_drawdown = max(max_drawdown, drawdown)
+
+#         if done:
+#             break
+
+#     win_rate = (wins / total_trades) * 100 if total_trades > 0 else 0
+#     profit_factor = sum([p for p in profits if p > 0]) / abs(sum([p for p in profits if p < 0])) if sum([p for p in profits if p < 0]) != 0 else float('inf')
+#     print("total trade : ",total_trades)
+#     print("win trade : ",wins)
+#     print("winrate : ",win_rate)
+#     print("profit factor : ",profit_factor)
+#     print("max drawdown : ",max_drawdown*100)
+#     return win_rate, profit_factor, max_drawdown * 100
 
 # ฟังก์ชันรีเทรนโมเดล
 def retrain_model():
@@ -336,6 +374,7 @@ def retrain_model():
     win_rate = outputBT.get("Win Rate [%]", "N/A")
     profit_factor = outputBT.get("Profit Factor", "N/A")
     max_drawdown = outputBT.get("Avg. Drawdown [%]", "N/A") # Fallback to alternative key
+    # win_rate, profit_factor, max_drawdown = backtest(env, model)
     # path = os.path.join(save_path, "best_model.zip")
     # **เรียกใช้ API หลังจากอัปเดตโมเดล**
     notify_model_update("EURUSD", new_version,win_rate,profit_factor,max_drawdown)
@@ -343,8 +382,8 @@ def retrain_model():
     
     
 # ตั้งเวลาให้รีเทรนโมเดลทุกๆ 3 เดือน
-# schedule.every(2160).hours.do(retrain_model)
-schedule.every(1).minutes.do(retrain_model)
+schedule.every(2160).hours.do(retrain_model)
+# schedule.every(1).minutes.do(retrain_model)
 
 # ฟังก์ชันหลัก
 def main():

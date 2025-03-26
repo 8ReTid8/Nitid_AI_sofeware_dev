@@ -59,7 +59,7 @@ def main():
     logging.info("server is running")
     # ตั้งเวลาให้รีโหลดโมเดลใหม่ทุก 30 วัน
     # schedule.every(10).minutes.do(reload_new_models)
-    schedule.every(2193).hours.do(reload_new_models)
+    schedule.every(2172).hours.do(reload_new_models)
     
     
     # เริ่ม thread สำหรับ scheduler
