@@ -1,3 +1,4 @@
+import ForexCharts from "@/components/graphForex/ForexGraph";
 import { authSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -17,15 +18,11 @@ export default async function Home() {
           <div className="hero-content flex-col lg:flex-row-reverse max-w-6xl">
             <div className="lg:pr-8">
               <h1 className="text-5xl font-bold text-error">Manage Your Finances with Precision</h1>
-              <p className="py-6 text-lg">DOLLARS helps you track, manage and optimize your financial accounts with unmatched accuracy.</p>
-              <div className="flex flex-wrap gap-4">
-                <button className="btn btn-error">Get Started</button>
-                <button className="btn btn-outline btn-error">Learn More</button>
-              </div>
+              <p className="py-6 text-lg">DOLLARS helps you track, manage, and optimize your financial accounts with unmatched accuracy and real-time insights.</p>
             </div>
           </div>
         </div>
-
+        <ForexCharts />
         {/* CTA Section */}
         <div className="py-16 px-4 bg-error/5">
           <div className="max-w-4xl mx-auto text-center">
