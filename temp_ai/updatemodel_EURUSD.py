@@ -382,8 +382,8 @@ def retrain_model():
     
     
 # ตั้งเวลาให้รีเทรนโมเดลทุกๆ 3 เดือน
-# schedule.every(2160).hours.do(retrain_model)
-schedule.every(1).minutes.do(retrain_model)
+schedule.every(2160).hours.do(retrain_model)
+# schedule.every(1).minutes.do(retrain_model)
 
 # ฟังก์ชันหลัก
 def main():

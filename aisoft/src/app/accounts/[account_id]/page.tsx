@@ -22,7 +22,7 @@ type AccountDetails = {
 };
 
 async function getAccountDetails(account_id: string) {
-  const response = await fetch(`http://localhost:3000/api/showaccount/${account_id}`);
+  const response = await fetch(`http://localhost:3000/api/showaccount?account_id=${account_id}`,);
   if (!response.ok) {
     throw new Error(`Failed to fetch account with ID ${account_id}`);
   }

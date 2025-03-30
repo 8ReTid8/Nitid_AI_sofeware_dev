@@ -268,7 +268,7 @@ export function AddAcc() {
     const router = useRouter()
     const [showModal, setShowModal] = useState<boolean>(false);
     const [token, setToken] = useState<string>("");
-    const availableCurrencies = ["EURUSD", "USDJPY"];
+    const availableCurrencies = ["EURUSD", "USDJPY","GBPUSD"];
     const [currency, setCurrency] = useState<string>("");
     const [models, setModels] = useState<{ model_id: string, model_name: string }[]>([]);
     const [formData, setFormData] = useState({
@@ -353,6 +353,13 @@ export function AddAcc() {
         }
 
         try {
+            const checkResponse = await fetch(`/api/check-mt5?mt5Id=${formData.mt5Id}`);
+            const checkData = await checkResponse.json();
+            if (checkData.exists) {
+                alert("This MT5 ID already exists!");
+                return;
+            }
+
             const response = await fetch("/api/accounts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -360,10 +367,13 @@ export function AddAcc() {
             });
 
             const data = await response.json();
-            if (response.ok) {
+            if (response.status === 201) {
                 alert("Account created successfully!");
                 handleToggle();
                 router.refresh()
+            } else if (response.status === 409) {
+                // alert("This MT5 ID already exists!");
+                alert(data.message);
             } else {
                 alert("Error: " + data.error);
             }

@@ -21,6 +21,15 @@ export async function POST(req: Request) {
                 user_name: session?.user.name ?? undefined
             }
         })
+        const checkAcc = await prisma.mT5_Acc.findFirst({
+            where: {
+                MT5_id: mt5Id,
+            },
+        });
+        if (checkAcc) {
+            return NextResponse.json({ message: "This MT5 ID already exists" }, { status: 409 });
+        }
+        
         console.log(userid)
         const newAccount = await prisma.mT5_Acc.create({
             data: {

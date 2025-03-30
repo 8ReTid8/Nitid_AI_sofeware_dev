@@ -1,9 +1,15 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { account_id: string } }) {
+export async function GET(req: Request) {
     try {
-        const {account_id} = await params
+        // const {account_id} = context.params
+
+        const url = new URL(req.url);
+        const account_id = url.searchParams.get("account_id");
+        if (!account_id) {
+            return NextResponse.json({ error: "Account ID is required" }, { status: 400 });
+        }
         const account = await prisma.mT5_Acc.findFirst({
             where: { acc_id: account_id },
             include: {

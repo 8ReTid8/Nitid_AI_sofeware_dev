@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     // const ThaiDate = new Date(new Date().getTime() + 7 * 60 * 60 * 1000)
     try {
         const overdueBills = await prisma.bill.findMany({

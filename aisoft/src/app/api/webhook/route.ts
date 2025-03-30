@@ -2,12 +2,16 @@ import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY!, {
-    apiVersion: "2024-06-20" as any,
-    typescript: true
-});
+// export const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY!, {
+//     apiVersion: "2024-06-20" as any,
+//     typescript: true
+// });
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
+    const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY!, {
+        apiVersion: "2024-06-20" as any,
+        typescript: true
+    });
 
     const body = await req.text();
     const signature = req.headers.get("Stripe-Signature") as string;
@@ -34,7 +38,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
             }
         })
         
-        if (selectbill && selectbill.due_date && selectbill.due_date < new Date()) {
+        if(!selectbill) {
+            return new NextResponse("Bill not found", { status: 404 })
+        }
+        
+        if (selectbill.due_date < new Date()) {
             const userpayment = await prisma.user.findFirst({
                 where: {
                     user_id: paymentIntent.metadata.userId
