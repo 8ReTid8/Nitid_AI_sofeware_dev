@@ -27,7 +27,6 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "No trade history available" });
         }
 
-        //เช็คว่าบิลเกิน 2 รอบชำระหรือไม่
         const unpaidBillsCount = await prisma.bill.count({
             where: {
                 accid: account.acc_id,
@@ -49,7 +48,9 @@ export async function POST(req: Request) {
         }
 
         // คิดค่าบริการ 5% ของกำไร
-        let serviceFee = parseFloat((totalProfit * 0.05).toFixed(2));
+        let serviceFee = Number((totalProfit * 0.05));
+        // let serviceFee = (totalProfit * 0.05).toFixed(2);
+        // console.log('💰 ค่าบริการที่คำนวณได้:', serviceFee);
         if (serviceFee<0.1){
             serviceFee = 0.1
         }
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
             data: {
                 userid: account.userid,
                 accid: account.acc_id,
-                bill_price: serviceFee,
+                bill_price: serviceFee.toFixed(2),
                 bill_status: "Unpaid",
                 create_date: new Date(),
                 due_date: new Date(new Date().setDate(new Date().getDate() + 2)),

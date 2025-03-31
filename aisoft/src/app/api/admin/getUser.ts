@@ -17,14 +17,19 @@ export async function GetUser() {
 }
 
 export async function DeleteUser(uId: string) {
+    console.log("Deleting user with ID:", uId);
     try {
-        const list = await prisma.user.update({
+        await prisma.bill.deleteMany({
+            where: { userid: uId }
+        });
+
+        await prisma.mT5_Acc.deleteMany({
+            where: { userid: uId }
+        });
+        const list = await prisma.user.delete({
             where: {
                 user_id: uId
             },
-            data: {
-                user_role: "delete"
-            }
         })
     } catch (error) {
         console.log(error)

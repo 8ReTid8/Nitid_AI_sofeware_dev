@@ -33,7 +33,7 @@ const TradingViewWidget = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4 text-center">Live Forex Rates</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-error">Live Forex Rates</h2>
       <div className="tradingview-widget-container" ref={container}>
         <div className="tradingview-widget-container__widget"></div>
       </div>
@@ -50,7 +50,7 @@ const ForexMultipleSymbols = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6 text-center">Forex Currencies</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center ">Forex Currencies</h2>
       <div className="grid md:grid-cols-3 gap-4">
         {symbols.map((symbol) => (
           <div key={symbol} className="border rounded-lg overflow-hidden">
