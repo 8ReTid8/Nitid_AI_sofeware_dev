@@ -268,7 +268,7 @@ export function AddAcc() {
     const router = useRouter()
     const [showModal, setShowModal] = useState<boolean>(false);
     const [token, setToken] = useState<string>("");
-    const availableCurrencies = ["EURUSD", "USDJPY","GBPUSD"];
+    const availableCurrencies = ["EURUSD", "USDJPY", "GBPUSD"];
     const [currency, setCurrency] = useState<string>("");
     const [models, setModels] = useState<{ model_id: string, model_name: string }[]>([]);
     const [formData, setFormData] = useState({
@@ -535,6 +535,10 @@ export function AddAcc() {
                             </svg>
                             Download API
                         </button>
+                        <p className="mt-2 text-sm text-blue-600 cursor-pointer hover:underline"
+                            onClick={() => window.location.href = "/install-bot"}>
+                            How to Set Up
+                        </p>
                     </div>
 
                     <div className="pt-4 flex justify-end gap-3 border-t">

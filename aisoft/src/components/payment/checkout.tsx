@@ -18,7 +18,7 @@ export default function CheckOutpage({ amount, sessionid, selectbill }: { amount
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ amount: amount * 100, sessionid: sessionid, selectbill: selectbill },),
+            body: JSON.stringify({ amount: Math.round(amount * 100), sessionid: sessionid, selectbill: selectbill },),
         })
             .then(res => res.json())
             .then(data => setClientSecret(data.clientSecret))

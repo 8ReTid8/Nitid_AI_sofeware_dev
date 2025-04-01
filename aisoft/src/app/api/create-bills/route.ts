@@ -44,13 +44,14 @@ export async function POST(req: Request) {
         const dealCount = profitableDeals.length;
 
         if (totalProfit === 0) {
+            console.log('📉 ไม่มีการซื้อขายที่มีกำไร');
             return NextResponse.json({ message: "No profitable trades, no bill created" });
         }
 
         // คิดค่าบริการ 5% ของกำไร
         let serviceFee = Number((totalProfit * 0.05));
         // let serviceFee = (totalProfit * 0.05).toFixed(2);
-        // console.log('💰 ค่าบริการที่คำนวณได้:', serviceFee);
+        console.log('💰 ค่าบริการที่คำนวณได้:', serviceFee);
         if (serviceFee<0.1){
             serviceFee = 0.1
         }
