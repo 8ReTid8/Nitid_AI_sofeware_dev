@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
             process.env.STRIPE_WEBHOOK_SECRET!);
 
     } catch (error) {
+        console.log(`❌ Error message webhook : ${error}`);
         return new NextResponse("invalid signature", { status: 400 })
     }
     if (event.type === "payment_intent.succeeded") {

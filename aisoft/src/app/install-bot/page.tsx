@@ -25,16 +25,54 @@ export default function InstallationTutorial() {
                             <div className="card-body">
                                 <h3 className="card-title text-xl">Download the installer</h3>
                                 <p>
-                                    Visit our official website and download the latest version of SuperApp.
+                                    When you download the folder, you'll find two subfolders inside:
                                 </p>
-                                <div className="mt-4">
+                                <p>
+                                    API Folder – This contains the bot files used for predicting Forex currency movements.
+                                </p>
+                                <p>
+                                    Library Folder – This includes the necessary tools for installing dependencies to connect server.
+                                </p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step1.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        // className="rounded-lg w-full max-w-md shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                <p>
+                                    API :
+                                </p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step1_1.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                <p>
+                                    libaries :
+                                </p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step1_2.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                {/* <div className="mt-4">
                                     <button className="btn btn-primary">Download SuperApp v3.2.1</button>
                                 </div>
                                 <div className="alert alert-info mt-4 ">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <span>Always verify the file hash after downloading for security.</span>
-                                </div>
-    
+                                </div> */}
+
                             </div>
                         </div>
                     </div>
@@ -51,17 +89,36 @@ export default function InstallationTutorial() {
                         </div>
                         <div className="card bg-base-100 shadow-xl flex-1">
                             <div className="card-body">
-                                <h3 className="card-title text-xl">Run the installer</h3>
+                                <h3 className="card-title text-xl">Launch MetaTrader5</h3>
                                 <p>
-                                    Double-click the downloaded file to start the installation process. You may need to confirm administrator privileges.
+                                    Open MetaTrader5.
                                 </p>
-                                <div className="mockup-code mt-4">
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step2.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+
+                                    />
+                                </div>
+
+                                <p>
+                                    Open the file, then click "Open Data Folder."
+                                </p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step2_2.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                {/* <div className="mockup-code mt-4">
                                     <pre><code>SuperApp_v3.2.1_setup.exe</code></pre>
-                                </div>
-                                <div className="alert alert-warning mt-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                    <span>If a security warning appears, click "More Info" and then "Run Anyway" to continue.</span>
-                                </div>
+                                </div> */}
+
                             </div>
                         </div>
                     </div>
@@ -74,12 +131,31 @@ export default function InstallationTutorial() {
                                     <span>3</span>
                                 </div>
                             </div>
+                            <div className="step-line h-full border-l-2 border-red-500 ml-6 mt-2"></div>
                         </div>
                         <div className="card bg-base-100 shadow-xl flex-1">
                             <div className="card-body">
-                                <h3 className="card-title text-xl">Complete installation and verify</h3>
-                                <p>Once the installation is complete, you can verify that SuperApp is working correctly.</p>
-                                <div className="mockup-code mt-4 bg-base-300">
+                                <h3 className="card-title text-xl">Access the MQL5 Folder</h3>
+                                <p>After opening the Data Folder, navigate to and click on the "MQL5" folder.</p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step3.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                <p>The MQL5 folder will open, displaying its contents.</p>
+                                <div className="my-4">
+                                    <img
+                                        src="/step3_2.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                {/* <div className="mockup-code mt-4 bg-base-300">
                                     <pre data-prefix="$"><code>superapp --version</code></pre>
                                     <pre data-prefix=">" className="text-success"><code>SuperApp v3.2.1 (build 20250331)</code></pre>
                                 </div>
@@ -89,11 +165,56 @@ export default function InstallationTutorial() {
                                 </div>
                                 <div className="mt-4">
                                     <button className="btn btn-success">Launch SuperApp</button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
-                </div>                
+                    {/* Step 4 */}
+                    <div className="step-item flex">
+                        <div className="mr-6">
+                            <div className="avatar placeholder">
+                                <div className="bg-red-500 text-white rounded-full w-12">
+                                    <span>4</span>
+                                </div>
+                            </div>
+                            <div className="step-line h-full border-l-2 border-red-500 ml-6 mt-2"></div>
+                        </div>
+                        <div className="card bg-base-100 shadow-xl flex-1">
+                            <div className="card-body">
+                                <h3 className="card-title text-xl">Launch MetaTrader5</h3>
+                                <p>
+                                    Open MetaTrader5.
+                                </p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step2.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+
+                                    />
+                                </div>
+
+                                <p>
+                                    Open the file, then click "Open Data Folder."
+                                </p>
+
+                                <div className="my-4">
+                                    <img
+                                        src="/step2_2.png"
+                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+
+                                {/* <div className="mockup-code mt-4">
+                                    <pre><code>SuperApp_v3.2.1_setup.exe</code></pre>
+                                </div> */}
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <style jsx>
                 {`

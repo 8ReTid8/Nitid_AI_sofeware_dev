@@ -51,7 +51,7 @@ export default function PaymentPage() {
         setShowStripeForm(true);
     };
     console.log(new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" }))
-
+    console.log(stripePromise)
     return (
         <div className="min-h-screen bg-base-200 p-8">
             <div className="max-w-3xl mx-auto space-y-8">
