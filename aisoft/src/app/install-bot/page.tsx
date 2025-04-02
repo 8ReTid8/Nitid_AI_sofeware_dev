@@ -96,10 +96,9 @@ export default function InstallationTutorial() {
 
                                 <div className="my-4">
                                     <img
-                                        src="/step2.png"
+                                        src="/step4.png"
                                         // className="rounded-lg w-full max-w-md mx-auto shadow-md"
                                         className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
-
                                     />
                                 </div>
 

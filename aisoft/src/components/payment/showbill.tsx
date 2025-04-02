@@ -136,8 +136,8 @@ export default function PaymentPage() {
                                     stripe={stripePromise}
                                     options={{
                                         mode: "payment",
-                                        // amount: Math.round(selectedBill.bill_price * 100),
-                                        amount: 1000,
+                                        amount: Math.round(selectedBill.bill_price * 100),
+                                        // amount: 1000,
                                         currency: "thb"
                                     }}
                                 >
