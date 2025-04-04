@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     try {
         const { amount, sessionid, selectbill } = await req.json()
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: 1000,
+            amount: amount,
             currency: "thb",
             automatic_payment_methods: { enabled: true },
             metadata: {

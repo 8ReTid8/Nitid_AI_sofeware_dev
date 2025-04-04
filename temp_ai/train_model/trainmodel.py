@@ -28,7 +28,8 @@ class ForexTradingEnv(gym.Env):
     def reset(self):
         self.balance = self.initial_balance
         self.trades = [] 
-        self.current_step = self.window_size
+        # self.current_step = self.window_size
+        self.current_step = 0
         self.done = False
         self.profit = 0
         # return self.data.iloc[self.current_step].values
@@ -38,8 +39,10 @@ class ForexTradingEnv(gym.Env):
         """
         Create the current state by stacking features from the last `window_size` steps.
         """
-        start = self.current_step - self.window_size
-        end = self.current_step
+        # start = self.current_step - self.window_size
+        # end = self.current_step
+        start = self.current_step  # Start from current step
+        end = self.current_step + self.window_size  # End at current step + window_size
         state = self.data.iloc[start:end].values
         return state
 
@@ -174,7 +177,7 @@ class ForexTradingEnv(gym.Env):
         return Tprofit
 
     def render(self, mode="human"):
-        print(f"Step: {self.current_step}, Action: {action}, Order: {len(self.trades)}, Balance: {self.balance}, Close: {self.data.iloc[self.current_step]["Close"]}, Profit: {self.profit}")
+        print(f"Step: {self.current_step}, Action: {action}, Order: {len(self.trades)}, Balance: {self.balance}, Close: {self.data.iloc[self.current_step]["Close"]}, Profit: {self.profit}, Reward: {reward}")
     
 
 
@@ -182,8 +185,8 @@ class ForexTradingEnv(gym.Env):
 if __name__ == "__main__":
     
     #data
-    # data = pd.read_csv('./temp_ai/data/EURUSD_H1.csv', delimiter='\t')
-    data = pd.read_csv('./temp_ai/data/GBPUSD_H1.csv', delimiter='\t')
+    data = pd.read_csv('./temp_ai/data/EURUSD_H1.csv', delimiter='\t')
+    # data = pd.read_csv('./temp_ai/data/GBPUSD_H1.csv', delimiter='\t')
     # data = pd.read_csv('./temp_ai/data/USDJPY_H1.csv', delimiter='\t')
     
     data.columns = [col.replace('<', '').replace('>', '') for col in data.columns]
@@ -239,22 +242,26 @@ if __name__ == "__main__":
 
     # Train the model
     model.learn(total_timesteps=200000)
+    # model.learn(total_timesteps=10000)
 
     # Save the model
-    # model.save("./temp_ai/model/EURUSD/v1.0/best_model")
-    model.save("./temp_ai/model/GBPUSD/v1.0/best_model")
+    model.save("./temp_ai/model/EURUSD/v1.0/best_model")
+    # model.save("./temp_ai/model/GBPUSD/v1.0/best_model")
     # model.save("./temp_ai/model/USDJPY/v1.0/best_model")
+    # model.save("./temp_ai/test")
+    
 
     # model = PPO.load("ppo_forex_trader")
     
     # Test the model
     env = ForexTradingEnv(data)  # Use the base environment for testing
     obs = env.reset()
-    for _ in range(10000):
+    for _ in range(1000):
     # while True:
         action, _states = model.predict(obs)
         obs, reward, done, info = env.step(action)
         env.render()
+        # print(obs)
         if done:
             break
 

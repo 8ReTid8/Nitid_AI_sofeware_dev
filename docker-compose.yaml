@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
     container_name: python-services
     depends_on:
-      - db  # Remove this if the scripts don't need PostgreSQL
+      - db
     volumes:
       - "./temp_ai:/app"
     ports:

@@ -49,11 +49,12 @@ export async function POST(req: Request) {
         }
 
         // คิดค่าบริการ 5% ของกำไร
-        let serviceFee = Number((totalProfit * 0.05));
+        let usdToThbRate = 35;
+        let serviceFee = Number((totalProfit * 0.05)* usdToThbRate)
         // let serviceFee = (totalProfit * 0.05).toFixed(2);
         console.log('💰 ค่าบริการที่คำนวณได้:', serviceFee);
-        if (serviceFee<0.1){
-            serviceFee = 0.1
+        if (serviceFee<10){
+            serviceFee = 10
         }
         const newBill = await prisma.bill.create({
             data: {

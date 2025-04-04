@@ -139,7 +139,7 @@ export default function Billhistory() {
                                             day: "numeric",
                                             hour12: false,
                                         }) : "N/A"}</td>
-                                        <td>{record.bill_price ? `${record.bill_price}$` : "N/A"}</td>
+                                        <td>{record.bill_price ? `${record.bill_price}฿` : "N/A"}</td>
                                         <td>
                                             <span className={`badge ${record.bill_status === 'Paid' ? 'badge-success' : 'badge-warning'}`}>
                                                 {record.bill_status || "Pending"}

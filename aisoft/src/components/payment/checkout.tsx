@@ -3,14 +3,13 @@ import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { useEffect, useState } from 'react';
 
 export default function CheckOutpage({ amount, sessionid, selectbill }: { amount: number, sessionid: string, selectbill: string }) {
-    // export default function CheckOutpage({ amount }: { amount: number}) {
-
     const stripe = useStripe();
     const elements = useElements();
 
     const [errorMessage, setError] = useState<string>();
     const [clientSecret, setClientSecret] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isPaymentElementReady, setIsPaymentElementReady] = useState(false);
 
     useEffect(() => {
         fetch("http://localhost:3000/api/create-payment", {
@@ -71,13 +70,24 @@ export default function CheckOutpage({ amount, sessionid, selectbill }: { amount
                         <div className="bg-base-200 p-4 rounded-lg mb-6">
                             <div className="flex justify-between items-center">
                                 <span className="text-base-content/70">Amount to pay</span>
-                                <span className="text-xl font-semibold">${amount}</span>
+                                <span className="text-xl font-semibold">{amount}฿</span>
                             </div>
                         </div>
 
                         {/* Payment Element */}
-                        <div className="bg-white rounded-lg overflow-hidden">
+                        {/* <div className="bg-white rounded-lg overflow-hidden">
                             {clientSecret && <PaymentElement />}
+                        </div> */}
+
+                        <div className="bg-white rounded-lg overflow-hidden">
+                            {clientSecret && (
+                                <PaymentElement 
+                                    onReady={() => setIsPaymentElementReady(true)}
+                                    options={{
+                                        layout: { type: 'tabs', defaultCollapsed: false }
+                                    }}
+                                />
+                            )}
                         </div>
 
                         {/* Error Message */}
@@ -93,7 +103,8 @@ export default function CheckOutpage({ amount, sessionid, selectbill }: { amount
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            disabled={!stripe || loading}
+                            // disabled={!stripe || loading}
+                            disabled={!stripe || loading || !isPaymentElementReady}
                             className="btn btn-primary w-full"
                         >
                             {loading ? (
@@ -106,7 +117,7 @@ export default function CheckOutpage({ amount, sessionid, selectbill }: { amount
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
-                                    Pay ${amount}
+                                    Pay {amount}฿
                                 </>
                             )}
                         </button>

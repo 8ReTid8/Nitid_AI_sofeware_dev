@@ -27,7 +27,7 @@ export async function GET(req: Request) {
             );
         }
         const lastBillDateUTC = new Date(lastBillDate.last_bill_date);
-        const lastBillDateMT5 = new Date(lastBillDateUTC.getTime() + 2 * 60 * 60 * 1000);
+        const lastBillDateMT5 = new Date(lastBillDateUTC.getTime() + 3 * 60 * 60 * 1000);
         console.log(lastBillDateMT5)
         return NextResponse.json({ last_billed: lastBillDateMT5 });
         // return NextResponse.json({ last_billed: lastBillDate?.last_bill_date })

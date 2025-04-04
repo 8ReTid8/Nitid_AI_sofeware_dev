@@ -288,7 +288,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ use
               <div className="stat bg-base-200 rounded-box p-2">
                 <div className="stat-title text-sm">Total Bill Amount</div>
                 <div className="stat-value text-primary text-lg">
-                  ${totalBillPrice.toFixed(2)}
+                  {totalBillPrice.toFixed(2)}฿
                 </div>
               </div>
             </div>
@@ -321,7 +321,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ use
                         </span>
                       </div>
                       <div className={`badge ${bill.bill_status === 'Paid' ? 'badge-success' : 'badge-warning'} badge-outline`}>
-                        {bill.bill_status}: ${bill.bill_price}
+                        {bill.bill_status}: {bill.bill_price}฿
                       </div>
                     </div>
                   )

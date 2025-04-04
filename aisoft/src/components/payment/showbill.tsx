@@ -110,7 +110,7 @@ export default function PaymentPage() {
                                                 })}
                                             </span>
                                         </p>
-                                        <p className="mt-2">Amount: <span className="font-bold">{bill.bill_price}$</span></p>
+                                        <p className="mt-2">Amount: <span className="font-bold">{bill.bill_price}฿</span></p>
 
                                         <div className="mt-2">
                                             Status:

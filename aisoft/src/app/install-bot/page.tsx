@@ -180,36 +180,65 @@ export default function InstallationTutorial() {
                         </div>
                         <div className="card bg-base-100 shadow-xl flex-1">
                             <div className="card-body">
-                                <h3 className="card-title text-xl">Launch MetaTrader5</h3>
+                                <h3 className="card-title text-xl">Installing Required Files</h3>
                                 <p>
-                                    Open MetaTrader5.
+                                    Open MetaTrader 5 and navigate to the Experts folder. Move the API files you downloaded into this folder.
                                 </p>
-
                                 <div className="my-4">
                                     <img
-                                        src="/step2.png"
-                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        src="/step1_1.png"
                                         className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
-
                                     />
                                 </div>
-
-                                <p>
-                                    Open the file, then click "Open Data Folder."
-                                </p>
-
                                 <div className="my-4">
                                     <img
-                                        src="/step2_2.png"
-                                        // className="rounded-lg w-full max-w-md mx-auto shadow-md"
+                                        src="/step4_1.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+                                <div className="my-4">
+                                    <img
+                                        src="/step4.png"
                                         className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
                                     />
                                 </div>
 
-                                {/* <div className="mockup-code mt-4">
-                                    <pre><code>SuperApp_v3.2.1_setup.exe</code></pre>
-                                </div> */}
-
+                                <p>
+                                    Open the Libraries folder and place the "libsodium.dll" and "libzmq.dll" files inside. These are essential for API functionality.
+                                </p>
+                                <div className="my-4">
+                                    <img
+                                        src="/step4_2.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+                                <div className="my-4">
+                                    <img
+                                        src="/step4_2_2.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+                                <p>
+                                    Open the Include folder and copy the "Zmq" and "Mql" folders from your downloaded files into this directory.
+                                </p>
+                                <div className="my-4">
+                                    <img
+                                        src="/step4_3.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+                                <div className="my-4">
+                                    <img
+                                        src="/step4_3_1.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
+                                <div className="my-4">
+                                    <img
+                                        src="/step4_3_2.png"
+                                        className="rounded-lg w-[calc(50%)] mx-auto shadow-md"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

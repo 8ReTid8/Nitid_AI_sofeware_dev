@@ -71,7 +71,7 @@ export async function ShowUser() {
         <div className="flex justify-between items-center px-6 py-4 bg-gray-50 border-b">
           <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
           <div className="text-lg font-semibold text-green-600">
-            Total Bill Payment: ${totalBillPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            Total Bill Payment: {totalBillPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿
           </div>
         </div>
 
@@ -111,7 +111,7 @@ export async function ShowUser() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-700 font-semibold">
-                      ${user.bill.reduce((sum, bill) => sum + Number(bill.bill_price || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {user.bill.reduce((sum, bill) => sum + Number(bill.bill_price || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}฿
                     </td>
                     <td className="px-4 py-3 text-center">
                       <a href={`/admin/${user.user_id}`} className="inline-block">
