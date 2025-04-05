@@ -241,14 +241,14 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    model.learn(total_timesteps=200000)
-    # model.learn(total_timesteps=10000)
+    # model.learn(total_timesteps=200000)
+    model.learn(total_timesteps=10000)
 
     # Save the model
-    model.save("./temp_ai/model/EURUSD/v1.0/best_model")
+    # model.save("./temp_ai/model/EURUSD/v1.0/best_model")
     # model.save("./temp_ai/model/GBPUSD/v1.0/best_model")
     # model.save("./temp_ai/model/USDJPY/v1.0/best_model")
-    # model.save("./temp_ai/test")
+    model.save("./temp_ai/test")
     
 
     # model = PPO.load("ppo_forex_trader")
@@ -259,6 +259,7 @@ if __name__ == "__main__":
     for _ in range(1000):
     # while True:
         action, _states = model.predict(obs)
+        # print(_states)
         obs, reward, done, info = env.step(action)
         env.render()
         # print(obs)
