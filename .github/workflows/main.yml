@@ -27,7 +27,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+        
+      - name: Create .env file
+        run: |
+          cat <<EOF > ./aisoft/.env
+          # Add all necessary env vars
+          EOF
+          
       # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
