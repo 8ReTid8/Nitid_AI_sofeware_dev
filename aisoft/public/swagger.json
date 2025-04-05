@@ -1,0 +1,713 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "addmodel",
+        "version": "1.0.0",
+        "description": "API for add PPO model entries"
+    },
+    "paths": {
+        "/api/addmodel": {
+            "post": {
+                "summary": "Add PPO model",
+                "description": "Add a new PPO model with the provided parameters.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "SuperModel"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "version": {
+                                        "type": "string",
+                                        "example": "1.0.0"
+                                    },
+                                    "winrate": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 0.85
+                                    },
+                                    "profitfactor": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1.9
+                                    },
+                                    "drawdown": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 0.12
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "currency",
+                                    "version",
+                                    "winrate",
+                                    "profitfactor",
+                                    "drawdown"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Model created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "clv24zp4d0000ve2i7q9j9jl2"
+                                        },
+                                        "model_name": {
+                                            "type": "string",
+                                            "example": "SuperModel"
+                                        },
+                                        "model_currency": {
+                                            "type": "string",
+                                            "example": "USD"
+                                        },
+                                        "model_version": {
+                                            "type": "string",
+                                            "example": "1.0.0"
+                                        },
+                                        "model_winrate": {
+                                            "type": "number",
+                                            "example": 0.85
+                                        },
+                                        "model_profit_factor": {
+                                            "type": "number",
+                                            "example": 1.9
+                                        },
+                                        "model_drawdown": {
+                                            "type": "number",
+                                            "example": 0.12
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing required fields"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/checkduebill": {
+            "post": {
+                "summary": "Check overdue bills",
+                "description": "Checks all unpaid bills past their due date and bans the associated users.",
+                "responses": {
+                    "200": {
+                        "description": "Successfully checked overdue bills",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bills checked"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error occurred during the bill check process",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error checking bills"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/get-selected-model": {
+            "get": {
+                "summary": "Get selected PPO model by MT5 ID",
+                "description": "Retrieves the version and currency of the model linked to a specific MT5 account.",
+                "parameters": [
+                    {
+                        "name": "mt5_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "MT5 account ID"
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "API token (optional in current logic)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved model data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "model_version": {
+                                            "type": "string",
+                                            "example": "1.0.0"
+                                        },
+                                        "model_currency": {
+                                            "type": "string",
+                                            "example": "USD"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing mt5_id or token"
+                    },
+                    "404": {
+                        "description": "Account or model not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/create-bills": {
+            "post": {
+                "summary": "Create a bill based on profitable MT5 trades",
+                "description": "Receives MT5 trade history, calculates service fee (5% of profit), and creates a bill if conditions are met.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "abc123token"
+                                    },
+                                    "deals": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "profit": {
+                                                    "type": "number",
+                                                    "example": 12.5
+                                                }
+                                            },
+                                            "required": [
+                                                "profit"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "token",
+                                    "deals"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bill created successfully or relevant message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bill created successfully"
+                                        },
+                                        "bill": {
+                                            "type": "object",
+                                            "properties": {
+                                                "userid": {
+                                                    "type": "string",
+                                                    "example": "user123"
+                                                },
+                                                "accid": {
+                                                    "type": "string",
+                                                    "example": "acc456"
+                                                },
+                                                "bill_price": {
+                                                    "type": "string",
+                                                    "example": "75.00"
+                                                },
+                                                "bill_status": {
+                                                    "type": "string",
+                                                    "example": "Unpaid"
+                                                },
+                                                "create_date": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "due_date": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input (e.g. missing token or deals)"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/getlastBilldate": {
+            "get": {
+                "summary": "Get last bill date for MT5 account",
+                "description": "Fetches the last bill date associated with the MT5 account token and adjusts it for MT5 time (+3 hours).",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "API token for the MT5 account"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Last bill date retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "last_billed": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-04-03T14:00:00.000Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing API token"
+                    },
+                    "404": {
+                        "description": "Last bill date not found"
+                    },
+                    "500": {
+                        "description": "Failed to fetch last bill date"
+                    }
+                }
+            }
+        },
+        "/api/webhook": {
+            "post": {
+                "summary": "Stripe webhook to process payment events",
+                "description": "Handles `payment_intent.succeeded` events from Stripe. Verifies signature, updates bill status, and unbans users if needed.",
+                "requestBody": {
+                    "description": "Stripe sends raw body as a text payload. This must match the webhook secret signature.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "example": {
+                                    "id": "evt_1",
+                                    "object": "event",
+                                    "type": "payment_intent.succeeded",
+                                    "data": {
+                                        "object": {
+                                            "id": "pi_123",
+                                            "object": "payment_intent",
+                                            "metadata": {
+                                                "billid": "abc123",
+                                                "userId": "user456"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Webhook handled successfully",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "ok"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid signature or malformed request"
+                    },
+                    "404": {
+                        "description": "Bill not found"
+                    }
+                },
+                "security": [
+                    {
+                        "stripeSignature": []
+                    }
+                ]
+            }
+        },
+        "/api/deleteAccount": {
+            "post": {
+                "summary": "Delete MT5 account",
+                "description": "Deletes an MT5 account from the database using the account ID.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "accountId": {
+                                        "type": "string",
+                                        "description": "The unique identifier for the MT5 account"
+                                    }
+                                },
+                                "required": [
+                                    "accountId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Account deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account deleted successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid account ID"
+                    },
+                    "500": {
+                        "description": "Error occurred while deleting the account"
+                    }
+                }
+            }
+        },
+        "/api/signup": {
+            "post": {
+                "summary": "Create a new user",
+                "description": "Registers a new user with a username, email, and password.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "description": "The username of the new user",
+                                        "example": "john_doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "description": "The email of the new user",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "description": "The password for the new user",
+                                        "example": "supersecretpassword"
+                                    }
+                                },
+                                "required": [
+                                    "username",
+                                    "email",
+                                    "password"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "user": {
+                                            "type": "object",
+                                            "properties": {
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "john_doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john.doe@example.com"
+                                                },
+                                                "user_role": {
+                                                    "type": "string",
+                                                    "example": "user"
+                                                }
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User created successfully"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid data provided"
+                    },
+                    "409": {
+                        "description": "User with this email already exists"
+                    },
+                    "500": {
+                        "description": "Error occurred while creating the user"
+                    }
+                }
+            }
+        },
+        "/api/accounts": {
+            "post": {
+                "summary": "Create a new MT5 account",
+                "description": "Registers a new MT5 account for the authenticated user, linking the account with the user's information.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mt5Id": {
+                                        "type": "string",
+                                        "description": "The unique identifier for the MT5 account",
+                                        "example": "MT5-123456"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name associated with the MT5 account",
+                                        "example": "John Doe Account"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "description": "The currency used for the MT5 account",
+                                        "example": "USD"
+                                    },
+                                    "model": {
+                                        "type": "string",
+                                        "description": "The model associated with the MT5 account",
+                                        "example": "Model-A"
+                                    },
+                                    "volume": {
+                                        "type": "number",
+                                        "description": "The volume or lot size for the MT5 account",
+                                        "example": 1.0
+                                    },
+                                    "token": {
+                                        "type": "string",
+                                        "description": "A token to authenticate the account creation",
+                                        "example": "token1234"
+                                    }
+                                },
+                                "required": [
+                                    "mt5Id",
+                                    "name",
+                                    "currency",
+                                    "model",
+                                    "volume",
+                                    "token"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Account created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "MT5_id": {
+                                            "type": "string",
+                                            "example": "MT5-123456"
+                                        },
+                                        "acc_name": {
+                                            "type": "string",
+                                            "example": "John Doe Account"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "token1234"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "disconnect"
+                                        },
+                                        "lot_size": {
+                                            "type": "number",
+                                            "example": 1.0
+                                        },
+                                        "modelid": {
+                                            "type": "string",
+                                            "example": "Model-A"
+                                        },
+                                        "last_bill_date": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2025-04-05T12:00:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Missing required fields"
+                    },
+                    "409": {
+                        "description": "MT5 ID already exists"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/getbillhistory": {
+            "get": {
+                "summary": "Get Bill History for a User",
+                "description": "Fetches the bill history for a user based on the provided user ID, including details of associated MT5 accounts.",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "query",
+                        "required": true,
+                        "description": "The unique identifier of the user for whom the bill history is to be fetched",
+                        "schema": {
+                            "type": "string",
+                            "example": "user1234"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bill history fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "bill_id": {
+                                                "type": "string",
+                                                "example": "bill123"
+                                            },
+                                            "amount": {
+                                                "type": "number",
+                                                "example": 100.0
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "paid"
+                                            },
+                                            "bill_date": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2025-04-05T12:00:00Z"
+                                            },
+                                            "mt5_account": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "MT5_id": {
+                                                        "type": "string",
+                                                        "example": "MT5-123456"
+                                                    },
+                                                    "acc_name": {
+                                                        "type": "string",
+                                                        "example": "John Doe Account"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing userId"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+    }
+}
