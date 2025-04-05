@@ -48,7 +48,7 @@ jobs:
       # Build and run containers with Docker Compose
       - name: Build and run containers with Docker Compose
         run: |
-          docker compose up
+          docker compose up -d
 
       # Wait for containers to be ready
       - name: Wait for containers to be ready
