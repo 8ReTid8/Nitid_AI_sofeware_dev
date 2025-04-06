@@ -1,0 +1,53 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+                
+jobs:
+  build:
+    runs-on: ubuntu-test
+    
+    env:
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXT_PUBLIC_STRIPE_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLIC_KEY }}
+      STRIPE_PRIVATE_KEY: ${{ secrets.STRIPE_PRIVATE_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      STRIPE_RK: ${{ secrets.STRIPE_RK }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+          
+      - name: Create .env file
+        run: |
+          cat <<EOF > ./aisoft/.env
+          # Add all necessary env vars
+          EOF
+                          
+      - name: setup docker build
+        uses: docker/setup-buildx-action@v2
+                          
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version  # Verify installation
+          
+      - name: Build and run containers with Docker Compose
+        run: |
+          docker compose up -d
+
+      - name: Wait for containers to be ready
+        run: sleep 10
+
+      - name: Stop Docker containers
+        run: docker-compose down
+                  
