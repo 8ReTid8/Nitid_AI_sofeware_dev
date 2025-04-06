@@ -4,9 +4,12 @@ services:
     container_name: db
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: forex
+      # POSTGRES_USER: postgres
+      # POSTGRES_PASSWORD: postgres
+      # POSTGRES_DB: forex
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
     volumes:
@@ -33,7 +36,8 @@ services:
   stripe-cli:
     image: stripe/stripe-cli
     container_name: stripe-cli
-    command: "listen --forward-to http://client:3000/api/webhook --api-key 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"
+    # command: "listen --forward-to http://client:3000/api/webhook --api-key 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"
+    command: "listen --forward-to http://client:3000/api/webhook --api-key ${STRIPE_RK}"
     env_file:
       - ./aisoft/.env
 
