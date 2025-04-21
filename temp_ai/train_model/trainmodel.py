@@ -7,7 +7,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv,VecNormalize
 import ta
 
 class ForexTradingEnv(gym.Env):
-    def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=48):
+    def __init__(self, data, initial_balance=100000, max_position_size=1.0,window_size=16):
         super(ForexTradingEnv, self).__init__()
         self.data = data
         self.initial_balance = initial_balance
@@ -20,7 +20,7 @@ class ForexTradingEnv(gym.Env):
 
         # Observation space: Feature vector representing the market state
         self.observation_space = spaces.Box(
-            low=-np.inf, high=np.inf, shape=(window_size,16), dtype=np.float32
+            low=-np.inf, high=np.inf, shape=(window_size,15), dtype=np.float32
         )
 
         self.reset()
@@ -28,8 +28,8 @@ class ForexTradingEnv(gym.Env):
     def reset(self):
         self.balance = self.initial_balance
         self.trades = [] 
-        # self.current_step = self.window_size
-        self.current_step = 0
+        self.current_step = self.window_size
+        # self.current_step = 0
         self.done = False
         self.profit = 0
         # return self.data.iloc[self.current_step].values
@@ -39,10 +39,10 @@ class ForexTradingEnv(gym.Env):
         """
         Create the current state by stacking features from the last `window_size` steps.
         """
-        # start = self.current_step - self.window_size
-        # end = self.current_step
-        start = self.current_step  # Start from current step
-        end = self.current_step + self.window_size  # End at current step + window_size
+        start = self.current_step - self.window_size
+        end = self.current_step
+        # start = self.current_step  # Start from current step
+        # end = self.current_step + self.window_size  # End at current step + window_size
         state = self.data.iloc[start:end].values
         return state
 
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     data["MACD_SIGNAL"] = ta.trend.macd_signal(data["Close"])
 
     # ADX (Trend Strength)
-    data["ADX"] = ta.trend.adx(data["High"], data["Low"], data["Close"])
+    # data["ADX"] = ta.trend.adx(data["High"], data["Low"], data["Close"])
 
     # Bollinger Bands (Volatility)
     data["BB_UPPER"] = ta.volatility.bollinger_hband(data["Close"])
@@ -241,8 +241,8 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    # model.learn(total_timesteps=200000)
-    model.learn(total_timesteps=10000)
+    model.learn(total_timesteps=200000)
+    # model.learn(total_timesteps=10000)
 
     # Save the model
     # model.save("./temp_ai/model/EURUSD/v1.0/best_model")

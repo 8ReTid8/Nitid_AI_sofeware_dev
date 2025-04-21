@@ -11,8 +11,8 @@ def main():
     socket = context.socket(zmq.ROUTER)
     socket.bind("tcp://*:5555")
     
-    model_path = "./temp_ai/model/EURUSD/v1.0/best_model"  # Path to your trained model
-    # model_path = "./temp_ai/CUP"  # Path to your trained model
+    # model_path = "./temp_ai/model/EURUSD/v1.0/best_model"  # Path to your trained model
+    model_path = "./temp_ai/test"  # Path to your trained model
     
     model = PPO.load(model_path)
     
@@ -54,7 +54,7 @@ def main():
             df["MACD_SIGNAL"] = ta.trend.macd_signal(df["Close"])
 
             # ADX (Trend Strength)
-            df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
+            # df["ADX"] = ta.trend.adx(df["High"], df["Low"], df["Close"])
 
             # Bollinger Bands (Volatility)
             df["BB_UPPER"] = ta.volatility.bollinger_hband(df["Close"])
@@ -81,7 +81,7 @@ def main():
 
         # ตอบกลับไปยัง MT5
         
-        prediction, _ = model.predict(df.tail(48))
+        prediction, _ = model.predict(df.tail(16))
         print("prediction",prediction)
         
         # socket.send_string(str(prediction))
